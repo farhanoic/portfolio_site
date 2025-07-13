@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Farhan Azhar - Portfolio
 
-## Getting Started
+A modern, minimalistic portfolio website built with Next.js 15, TypeScript, Tailwind CSS, and Framer Motion.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Modern Design**: Clean, minimalistic design with dark theme
+- **Smooth Animations**: Powered by Framer Motion for delightful user experiences
+- **Responsive**: Mobile-first approach ensuring great experience across all devices
+- **Performance Optimized**: Built with Next.js 15 and App Router for optimal performance
+- **Type Safe**: Full TypeScript implementation
+- **Accessible**: Designed with accessibility best practices
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4 with shadcn/ui mono theme
+- **Animations**: Framer Motion
+- **Font**: Geist Mono
+- **Icons**: Heroicons and custom SVGs
+
+## 📋 Sections
+
+1. **Hero**: Animated introduction with name and title
+2. **About**: Personal bio with statistics and call-to-action
+3. **Skills**: Interactive skills showcase with categories
+4. **Projects**: Featured projects with filtering capabilities
+5. **Contact**: Contact form with social links
+
+## 🎨 Design System
+
+- **Background**: Dark (#0a0a0a) / Light (#fafafa)
+- **Foreground**: White (#fafafa) / Dark (#737373)
+- **Primary**: Gray (#737373)
+- **Accent**: Subtle accent colors for highlights
+- **Typography**: Geist Mono for clean, modern aesthetic
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd portfolio
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 📝 Scripts
+
+- `npm run dev` - Start development server with Turbopack
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## 🎯 Customization
+
+### Colors
+Update the CSS variables in `app/globals.css` to customize the color scheme.
+
+### Content
+Modify the content in the component files:
+- `components/sections/hero.tsx` - Hero section content
+- `components/sections/about.tsx` - About section content
+- `components/sections/skills.tsx` - Skills and technologies
+- `components/sections/projects.tsx` - Project showcase
+- `components/sections/contact.tsx` - Contact information
+
+### Animations
+Framer Motion configurations can be adjusted in each component to customize animations.
+
+## 📱 Responsive Design
+
+The portfolio is built with a mobile-first approach:
+- Mobile: Optimized for touch interactions
+- Tablet: Adapted layouts for medium screens
+- Desktop: Full-featured experience with hover effects
+
+## ⚡ Performance Features
+
+- **Image Optimization**: Next.js Image component for optimized loading
+- **Code Splitting**: Automatic code splitting with App Router
+- **Static Generation**: Pre-rendered pages for fast loading
+- **Font Optimization**: Optimized Google Fonts loading
+- **CSS Optimization**: Tailwind CSS purging for minimal bundle size
+
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env.local` file for any environment-specific configurations:
+```env
+# Add any environment variables here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Deployment
+The portfolio is ready for deployment on Vercel, Netlify, or any static hosting platform.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📄 License
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Learn More
+## 🤝 Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Feel free to submit issues and enhancement requests!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📞 Contact
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Email**: hello@farhanoic.me
+- **Website**: [farhanoic.me](https://farhanoic.me)
+- **LinkedIn**: [linkedin.com/in/farhanoic](https://linkedin.com/in/farhanoic)
+- **GitHub**: [github.com/farhanoic](https://github.com/farhanoic)
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ by Farhan Azhar
