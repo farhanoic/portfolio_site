@@ -42,6 +42,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         className={`${geistMono.variable} font-mono antialiased bg-background text-foreground noise-texture`}
+        suppressHydrationWarning={true}
       >
         <Header />
         {children}

@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Grid } from "lucide-react";
+import { ExternalLink, Grid, Code, Github } from "lucide-react";
 import CompactPortfolioCard from "@/components/portfolio/CompactPortfolioCard";
 import ProjectModal from "@/components/portfolio/ProjectModal";
+import YouTubeStats from "@/components/ui/YouTubeStats";
 import { urlFor } from "@/lib/sanity";
 import type { PortfolioProject as SanityPortfolioProject } from "@/lib/sanity-data";
 import type { PortfolioProject } from "@/types/portfolio";
@@ -340,176 +341,62 @@ function TerminalFooter({ animationDelay = 0 }: { animationDelay?: number }) {
 }
 
 
-// Interactive Timeline component with scroll-based glow effect
+// Professional Timeline component matching showcase page design
 function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?: number }) {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const timelineRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!timelineRef.current) return;
-
-      const timelineElement = timelineRef.current;
-      const timelineRect = timelineElement.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Calculate progress based on timeline position relative to viewport
-      const timelineTop = timelineRect.top;
-      const timelineHeight = timelineRect.height;
-      
-      // Start filling when timeline enters bottom 70% of viewport
-      // Complete when timeline exits top 30% of viewport  
-      const startPoint = windowHeight * 0.7;
-      const endPoint = -timelineHeight * 0.3;
-      
-      let progress = 0;
-      if (timelineTop <= startPoint) {
-        const scrollDistance = startPoint - timelineTop;
-        const totalDistance = startPoint - endPoint;
-        progress = Math.min(100, Math.max(0, (scrollDistance / totalDistance) * 100));
-      }
-      
-      setScrollProgress(progress);
-    };
-
-    // Throttle scroll events for performance
-    let ticking = false;
-    const throttledScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', throttledScroll);
-    handleScroll(); // Initial calculation
-
-    return () => window.removeEventListener('scroll', throttledScroll);
-  }, []);
-
   return (
     <motion.div
-      ref={timelineRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: animationDelay }}
       className="w-full max-w-4xl mx-auto"
     >
-      <h3 className="text-lg md:text-xl font-medium text-center text-primary border-b border-border pb-4 mb-8">
-        Work Timeline
-      </h3>
-      
+      <h3 className="text-2xl font-bold text-center mb-8">Professional Journey</h3>
       <div className="relative">
-        {/* Base timeline line */}
-        <div className="absolute left-4 md:left-6 top-0 w-0.5 h-full bg-border z-0" />
+        {/* Timeline line */}
+        <div className="absolute left-4 md:left-1/2 md:-ml-0.5 top-0 bottom-0 w-0.5 bg-border"></div>
         
-        {/* Animated progress line with glow */}
-        <div 
-          className="absolute left-4 md:left-6 top-0 w-0.5 bg-gradient-to-b from-primary via-primary to-primary/50 z-10 transition-all duration-300 ease-out"
-          style={{ 
-            height: `${scrollProgress}%`,
-            boxShadow: scrollProgress > 0 ? '0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)' : 'none'
-          }}
-        />
-        
-        {/* Glow point at progress end */}
-        {scrollProgress > 0 && (
-          <div 
-            className="absolute left-3 md:left-5 w-2 h-2 bg-primary rounded-full z-20 transition-all duration-300 ease-out"
-            style={{ 
-              top: `${scrollProgress}%`,
-              transform: 'translate(-50%, -50%)',
-              boxShadow: '0 0 15px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.4)',
-              animation: scrollProgress > 0 ? 'pulse 2s infinite' : 'none'
-            }}
-          />
-        )}
-        
-        {/* Timeline items */}
-        <div className="space-y-8 md:space-y-10">
-          {items.map((item, index) => {
-            const itemProgress = (index + 1) / items.length * 100;
-            const isActive = scrollProgress >= itemProgress;
+        {items.map((item, index) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: animationDelay + 0.5 + index * 0.1 }}
+            className={`relative flex items-center mb-8 ${
+              index % 2 === 0 ? 'md:flex-row-reverse' : ''
+            }`}
+          >
+            {/* Timeline dot */}
+            <div className="absolute left-4 md:left-1/2 md:-ml-2 w-4 h-4 bg-primary rounded-full border-4 border-background z-10"></div>
             
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: animationDelay + 0.5 + index * 0.2 }}
-                className="relative flex items-start"
-              >
-                {/* Timeline dot */}
-                <div className="relative z-10 flex-shrink-0">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.4, delay: animationDelay + 0.7 + index * 0.2 }}
-                    className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
-                      item.type === 'ongoing' 
-                        ? 'bg-primary border-primary shadow-lg shadow-primary/50' 
-                        : isActive
-                          ? 'bg-primary border-primary shadow-lg shadow-primary/50'
-                          : 'bg-muted border-border'
-                    }`}
-                  />
-                </div>
-                
-                {/* Timeline content */}
-                <motion.div
-                  whileHover={{ scale: 1.02, x: 5 }}
-                  className={`ml-6 md:ml-8 flex-1 dashboard-card p-6 md:p-8 space-y-4 md:space-y-5 transition-all duration-300 ${
-                    isActive ? 'ring-1 ring-primary/20 shadow-lg shadow-primary/10' : ''
-                  }`}
-                >
-                  {/* Date range badge */}
-                  <div className="flex items-center space-x-3">
-                    <span className={`px-4 py-2 text-xs font-medium rounded-full transition-all duration-300 ${
-                      item.type === 'ongoing'
-                        ? 'bg-primary/20 text-primary border border-primary/30'
-                        : isActive
-                          ? 'bg-primary/20 text-primary border border-primary/30'
-                          : 'bg-muted border border-border text-muted-foreground'
-                    }`}>
-                      {item.dateRange}
+            {/* Content */}
+            <div className={`ml-12 md:ml-0 md:w-1/2 ${
+              index % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8'
+            }`}>
+              <div className="dashboard-card p-6">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className={`px-2 py-1 text-xs rounded ${
+                    item.type === 'ongoing' 
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      : item.type === 'milestone'
+                      ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                      : 'bg-muted text-muted-foreground border border-border'
+                  }`}>
+                    {item.dateRange}
+                  </span>
+                  {item.type === 'ongoing' && (
+                    <span className="px-2 py-1 text-xs bg-primary/20 text-primary border border-primary/30 rounded">
+                      Current
                     </span>
-                    {item.type === 'ongoing' && (
-                      <span className="px-3 py-1 text-xs bg-green-500/20 text-green-400 border border-green-500/30 rounded">
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Job title and company */}
-                  <div className="space-y-2 md:space-y-3">
-                    <h4 className="text-sm md:text-base font-semibold text-foreground leading-tight">
-                      {item.title}
-                    </h4>
-                    {item.company && (
-                      <p className="text-sm text-primary font-medium">
-                        {item.company}
-                      </p>
-                    )}
-                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed pt-1">
-                      {item.description}
-                    </p>
-                  </div>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </div>
+                  )}
+                </div>
+                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                <p className="text-sm text-primary font-medium mb-2">{item.company}</p>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
-
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-      `}</style>
     </motion.div>
   );
 }
@@ -688,39 +575,39 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
   };
   
 
-  // Work timeline data
+  // Work timeline data matching showcase page
   const timelineItems = [
     {
       id: 1,
-      dateRange: "2020 - Present",
-      title: "My Own YouTube Channel",
-      company: "",
+      dateRange: "2025",
+      title: "Freelancer & Content Creator",
+      company: "Independent",
       type: "ongoing",
-      description: "Content creation and video production"
+      description: "Full-time freelancing and content creation across multiple platforms"
     },
     {
       id: 2,
-      dateRange: "2023 - 2024",
-      title: "Video Editor",
-      company: "Paradox Fest",
-      type: "completed",
-      description: "Professional video editing for events"
-    },
-    {
-      id: 3,
-      dateRange: "2024 - 2025",
+      dateRange: "2024",
       title: "Video Editor",
       company: "IIT Madras",
       type: "completed",
-      description: "Educational content and promotional videos"
+      description: "Educational content and promotional videos for prestigious institution"
+    },
+    {
+      id: 3,
+      dateRange: "2023",
+      title: "Video Editor",
+      company: "Paradox Fest",
+      type: "completed",
+      description: "Professional video editing for events and promotional content"
     },
     {
       id: 4,
-      dateRange: "2025 - Present",
-      title: "Freelancer",
-      company: "",
-      type: "ongoing",
-      description: "Independent creative and development projects"
+      dateRange: "2020",
+      title: "YouTube Channel Launch",
+      company: "Personal Brand",
+      type: "milestone",
+      description: "Started content creation journey with focus on tech and creativity"
     }
   ];
   const socialLinks = [
@@ -894,384 +781,326 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
             </p>
           </motion.div>
 
-          {/* Section Separator */}
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 1.6 }}
-            className="w-32 h-[2px] bg-gradient-to-r from-transparent via-gray-600 to-transparent"
-          />
-
-          {/* Skills & Portfolio Pairs Layout */}
+          {/* Content Creator Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.8 }}
-            className="w-full max-w-7xl mt-8 md:mt-16 space-y-12 lg:space-y-16"
+            transition={{ duration: 0.8, delay: 1.6 }}
+            className="w-full max-w-6xl space-y-8"
           >
-            {/* Creative Skills & Portfolio Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-              {/* Creative Skills Card */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 2.0 }}
-                className="dashboard-card p-5 md:p-8 space-y-5 h-fit"
-              >
-                <h3 className="text-sm md:text-base font-medium text-center text-primary border-b border-border pb-2">
-                  Creative Stack
-                </h3>
-                <div className="space-y-4">
-                  {Object.entries(creativeSkills).map(([category, skills], categoryIndex) => (
-                    <div key={category} className="space-y-2">
-                      {/* Category Header */}
-                      <div className="flex items-center space-x-2">
-                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {category}
-                        </h4>
-                        <div className="flex-1 h-px bg-border"></div>
-                      </div>
-                      
-                      {/* Skills in Category */}
-                      <div className="flex flex-wrap justify-center gap-2">
-                        {skills.map((skill, skillIndex) => (
-                          <motion.div
-                            key={skill.name}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: 2.1 + (categoryIndex * skills.length + skillIndex) * 0.05 }}
-                            className="flex items-center space-x-1"
-                          >
-                            <span className={`px-3 py-1 bg-muted border rounded-md text-xs md:text-sm hover:scale-105 transition-all ${getProficiencyColor(skill.level)}`}>
-                              {skill.name}
-                            </span>
-                            <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor(skill.level)} bg-muted/50`}>
-                              {skill.level.charAt(0)}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Proficiency Legend */}
-                  <div className="pt-4 mt-4 border-t border-border">
-                    <div className="flex justify-center items-center space-x-6 text-xs">
-                      <div className="flex items-center space-x-1">
-                        <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor('Expert')} bg-muted/50`}>
-                          E
-                        </span>
-                        <span className="text-muted-foreground">Expert</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor('Intermediate')} bg-muted/50`}>
-                          I
-                        </span>
-                        <span className="text-muted-foreground">Intermediate</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+            {/* Content Creator Title */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.8 }}
+              className="text-3xl md:text-4xl font-bold text-center text-foreground"
+            >
+              Content Creator
+            </motion.h2>
 
-              {/* Creative Work Section */}
+            {/* Moving Skills Stripe */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.0 }}
+              className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 2.0 }}
-                className="space-y-4"
+                className="flex space-x-6 whitespace-nowrap will-change-transform"
+                animate={{
+                  x: [0, -1920],
+                }}
+                transition={{
+                  x: {
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    duration: 25,
+                    ease: 'linear',
+                  },
+                }}
+                style={{ width: 'max-content' }}
               >
-                {/* Header with View All Link */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm md:text-base font-medium text-primary border-b border-border pb-2">
-                    Creative Work
-                  </h3>
-                  <Link
-                    href="/hire-me#portfolio"
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center space-x-1"
+                {['YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration'].map((skill, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center px-5 py-3 bg-primary/10 rounded-full border border-primary/30 shadow-sm hover:bg-primary/20 transition-colors"
                   >
-                    <span>View All</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
-
-                {/* Portfolio Cards Row */}
-                {creativeProjects.length > 0 ? (
-                  <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-2">
-                    {creativeProjects.slice(0, 6).map((project, index) => (
-                      <motion.div
-                        key={project.id}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: 2.3 + index * 0.05 }}
-                      >
-                        <CompactPortfolioCard
-                          project={project}
-                          onClick={() => handleProjectClick(project)}
-                        />
-                      </motion.div>
-                    ))}
+                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                      {skill}
+                    </span>
                   </div>
-                ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-                    <p>No creative projects available</p>
-                  </div>
-                )}
+                ))}
               </motion.div>
-            </div>
+            </motion.div>
 
-            {/* Development Skills & Portfolio Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-              {/* Development Skills Card */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 2.0 }}
-                className="dashboard-card p-5 md:p-8 space-y-5 h-fit"
-              >
-                <h3 className="text-sm md:text-base font-medium text-center text-primary border-b border-border pb-2">
-                  Development Stack
-                </h3>
-                <div className="space-y-4">
-                  {Object.entries(developmentSkills).map(([category, skills], categoryIndex) => (
-                    <div key={category} className="space-y-2">
-                      {/* Category Header */}
-                      <div className="flex items-center space-x-2">
-                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {category}
-                        </h4>
-                        <div className="flex-1 h-px bg-border"></div>
-                      </div>
-                      
-                      {/* Skills in Category */}
-                      <div className="flex flex-wrap justify-center gap-2">
-                        {skills.map((skill, skillIndex) => (
-                          <motion.div
-                            key={skill.name}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: 2.5 + (categoryIndex * skills.length + skillIndex) * 0.05 }}
-                            className="flex items-center space-x-1"
-                          >
-                            <span className={`px-3 py-1 bg-muted border rounded-md text-xs md:text-sm hover:scale-105 transition-all ${getProficiencyColor(skill.level)}`}>
-                              {skill.name}
-                            </span>
-                            <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor(skill.level)} bg-muted/50`}>
-                              {skill.level.charAt(0)}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Proficiency Legend */}
-                  <div className="pt-4 mt-4 border-t border-border">
-                    <div className="flex justify-center items-center space-x-6 text-xs">
-                      <div className="flex items-center space-x-1">
-                        <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor('Expert')} bg-muted/50`}>
-                          E
-                        </span>
-                        <span className="text-muted-foreground">Expert</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor('Intermediate')} bg-muted/50`}>
-                          I
-                        </span>
-                        <span className="text-muted-foreground">Intermediate</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Development Work Section */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 2.0 }}
-                className="space-y-4"
-              >
-                {/* Header with View All Link */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm md:text-base font-medium text-primary border-b border-border pb-2">
-                    Development Work
-                  </h3>
-                  <Link
-                    href="/hire-me#portfolio"
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center space-x-1"
-                  >
-                    <span>View All</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
-                {/* Portfolio Cards Row */}
-                {developmentProjects.length > 0 ? (
-                  <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-2">
-                    {developmentProjects.slice(0, 6).map((project, index) => (
-                      <motion.div
-                        key={project.id}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: 2.7 + index * 0.05 }}
-                      >
-                        <CompactPortfolioCard
-                          project={project}
-                          onClick={() => handleProjectClick(project)}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-                    <p>No development projects available</p>
-                  </div>
-                )}
-              </motion.div>
-            </div>
-
-            {/* Creator Skills & Content Creations Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-              {/* Creator Skills Card */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 2.9 }}
-                className="dashboard-card p-5 md:p-8 space-y-5 h-fit"
-              >
-                <h3 className="text-sm md:text-base font-medium text-center text-primary border-b border-border pb-2">
-                  Creator Stack
-                </h3>
-                <div className="space-y-4">
-                  {Object.entries(creatorSkills).map(([category, skills], categoryIndex) => (
-                    <div key={category} className="space-y-2">
-                      {/* Category Header */}
-                      <div className="flex items-center space-x-2">
-                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {category}
-                        </h4>
-                        <div className="flex-1 h-px bg-border"></div>
-                      </div>
-                      
-                      {/* Skills in Category */}
-                      <div className="flex flex-wrap justify-center gap-2">
-                        {skills.map((skill, skillIndex) => (
-                          <motion.div
-                            key={skill.name}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: 3.0 + (categoryIndex * skills.length + skillIndex) * 0.05 }}
-                            className="flex items-center space-x-1"
-                          >
-                            <span className={`px-3 py-1 bg-muted border rounded-md text-xs md:text-sm hover:scale-105 transition-all ${getProficiencyColor(skill.level)}`}>
-                              {skill.name}
-                            </span>
-                            <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor(skill.level)} bg-muted/50`}>
-                              {skill.level.charAt(0)}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Proficiency Legend */}
-                  <div className="pt-4 mt-4 border-t border-border">
-                    <div className="flex justify-center items-center space-x-6 text-xs">
-                      <div className="flex items-center space-x-1">
-                        <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor('Expert')} bg-muted/50`}>
-                          E
-                        </span>
-                        <span className="text-muted-foreground">Expert</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <span className={`px-1.5 py-0.5 text-xs rounded ${getProficiencyColor('Intermediate')} bg-muted/50`}>
-                          I
-                        </span>
-                        <span className="text-muted-foreground">Intermediate</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Content Creations Section */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 2.9 }}
-                className="space-y-4"
-              >
-                {/* Header with View All Link */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm md:text-base font-medium text-primary border-b border-border pb-2">
-                    Content Creations
-                  </h3>
-                  <Link
-                    href="/hire-me#portfolio"
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center space-x-1"
-                  >
-                    <span>View All</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
-
-                {/* Content Portfolio Cards */}
-                {contentProjects.length > 0 ? (
-                  <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-2">
-                    {contentProjects.slice(0, 6).map((project, index) => (
-                      <motion.div
-                        key={project.id}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: 3.2 + index * 0.05 }}
-                      >
-                        <CompactPortfolioCard
-                          project={project}
-                          onClick={() => handleProjectClick(project)}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="dashboard-card p-8">
-                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                      <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center">
-                        <svg 
-                          className="w-8 h-8 text-red-500" 
-                          fill="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                        </svg>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Content Creation Projects Coming Soon
-                        </p>
-                        <p className="text-xs text-muted-foreground/70 max-w-xs">
-                          Add content projects with categories like "YouTube", "Tutorial", or "Content" in Sanity CMS
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            </div>
+            {/* YouTube Stats - Compact Version */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.2 }}
+              className="max-w-4xl mx-auto"
+            >
+              <YouTubeStats channelUrl="https://www.youtube.com/@farhanoic" className="bg-card/50" />
+            </motion.div>
           </motion.div>
 
-          {/* Section Separator */}
+          {/* Developer Section */}
           <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 3.4 }}
-            className="w-32 h-[2px] bg-gradient-to-r from-transparent via-gray-600 to-transparent"
-          />
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 2.4 }}
+            className="w-full max-w-6xl space-y-8"
+          >
+            {/* Developer Title */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.6 }}
+              className="text-3xl md:text-4xl font-bold text-center text-foreground"
+            >
+              Developer
+            </motion.h2>
+
+            {/* Moving Developer Skills Stripe */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.8 }}
+              className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
+              <motion.div
+                className="flex space-x-6 whitespace-nowrap will-change-transform"
+                animate={{
+                  x: [0, -1920],
+                }}
+                transition={{
+                  x: {
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    duration: 30,
+                    ease: 'linear',
+                  },
+                }}
+                style={{ width: 'max-content' }}
+              >
+                {['JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker', 'JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker', 'JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker'].map((skill, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center px-5 py-3 bg-green-500/10 rounded-full border border-green-500/30 shadow-sm hover:bg-green-500/20 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                      {skill}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
+            </motion.div>
+
+            {/* Featured Development Project */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.0 }}
+              className="max-w-4xl mx-auto"
+            >
+              {developmentProjects.length > 0 ? (
+                <div className="dashboard-card overflow-hidden">
+                  {/* Header */}
+                  <div className="p-4 border-b border-border">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-foreground">Featured Project</h3>
+                      <Link
+                        href="/showcase"
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center space-x-1"
+                      >
+                        <span>View All</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Featured Project Card */}
+                  <div 
+                    className="p-6 cursor-pointer hover:bg-muted/20 transition-colors"
+                    onClick={() => handleProjectClick(developmentProjects[0])}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                      {/* Project Thumbnail */}
+                      <div className="relative aspect-video bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden rounded-lg">
+                        {developmentProjects[0].thumbnail ? (
+                          <img 
+                            src={developmentProjects[0].thumbnail} 
+                            alt={developmentProjects[0].title}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Code className="w-12 h-12 text-muted-foreground/50" />
+                          </div>
+                        )}
+                        
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                          <div className="flex space-x-3">
+                            {developmentProjects[0].demoUrl && (
+                              <div className="p-2 bg-white/90 rounded-full text-gray-900">
+                                <ExternalLink className="w-4 h-4" />
+                              </div>
+                            )}
+                            {developmentProjects[0].githubUrl && (
+                              <div className="p-2 bg-white/90 rounded-full text-gray-900">
+                                <Github className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Project Info */}
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-xl font-bold text-foreground mb-2 hover:text-primary transition-colors">
+                            {developmentProjects[0].title}
+                          </h4>
+                          <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                            {developmentProjects[0].longDescription}
+                          </p>
+                        </div>
+                        
+                        {/* Technologies */}
+                        {developmentProjects[0].technologies && developmentProjects[0].technologies.length > 0 && (
+                          <div>
+                            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                              Technologies
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                              {developmentProjects[0].technologies.slice(0, 6).map((tech, techIndex) => (
+                                <span
+                                  key={techIndex}
+                                  className="px-3 py-1 text-xs bg-green-500/10 text-green-400 rounded-full border border-green-500/30"
+                                >
+                                  {tech}
+                                </span>
+                              ))}
+                              {developmentProjects[0].technologies.length > 6 && (
+                                <span className="px-3 py-1 text-xs bg-muted/50 text-muted-foreground rounded-full border">
+                                  +{developmentProjects[0].technologies.length - 6}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Links */}
+                        <div className="flex space-x-3">
+                          {developmentProjects[0].demoUrl && (
+                            <a
+                              href={developmentProjects[0].demoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              <span>Live Demo</span>
+                            </a>
+                          )}
+                          {developmentProjects[0].githubUrl && (
+                            <a
+                              href={developmentProjects[0].githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted/50 transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Github className="w-4 h-4" />
+                              <span>Source Code</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="dashboard-card p-8">
+                  <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                      <Code className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium text-foreground">No Development Projects</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Development projects will appear here once they are added to the CMS.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+
+          {/* Design/Video Editor Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 3.2 }}
+            className="w-full max-w-6xl space-y-8"
+          >
+            {/* Design/Video Editor Title */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.4 }}
+              className="text-3xl md:text-4xl font-bold text-center text-foreground"
+            >
+              Design/Video Editor
+            </motion.h2>
+
+            {/* Moving Creative Skills Stripe */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.6 }}
+              className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
+              <motion.div
+                className="flex space-x-6 whitespace-nowrap will-change-transform"
+                animate={{
+                  x: [0, -1920],
+                }}
+                transition={{
+                  x: {
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    duration: 35,
+                    ease: 'linear',
+                  },
+                }}
+                style={{ width: 'max-content' }}
+              >
+                {['Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD', 'Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD', 'Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD'].map((skill, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center px-5 py-3 bg-purple-500/10 rounded-full border border-purple-500/30 shadow-sm hover:bg-purple-500/20 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                      {skill}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+
 
           {/* Work Timeline Section */}
           <Timeline 
             items={timelineItems}
-            animationDelay={3.6}
+            animationDelay={3.8}
           />
 
         </motion.div>
@@ -1286,7 +1115,7 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
     </section>
     
     {/* Terminal Footer - Edge to Edge */}
-    <TerminalFooter animationDelay={4.0} />
+    <TerminalFooter animationDelay={4.2} />
     </>
   );
 }
