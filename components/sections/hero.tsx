@@ -9,33 +9,12 @@ import CompactPortfolioCard from "@/components/portfolio/CompactPortfolioCard";
 import ProjectModal from "@/components/portfolio/ProjectModal";
 import YouTubeStats from "@/components/ui/YouTubeStats";
 import { urlFor } from "@/lib/sanity";
-import type { PortfolioProject as SanityPortfolioProject } from "@/lib/sanity-data";
-import type { PortfolioProject } from "@/types/portfolio";
-import { categorizeWorkType } from "@/types/portfolio";
-
-// Transform Sanity data to component format
-function transformSanityProject(project: SanityPortfolioProject): PortfolioProject {
-  return {
-    id: project._id,
-    title: project.title,
-    slug: project.slug,
-    longDescription: project.longDescription,
-    category: project.category.name,
-    workType: project.workType || categorizeWorkType(project.category.name),
-    thumbnail: project.thumbnail ? urlFor(project.thumbnail).width(400).height(300).url() : '',
-    videoUrl: project.videoUrl,
-    demoUrl: project.demoUrl,
-    githubUrl: project.githubUrl,
-    client: project.client,
-    technologies: project.technologies || [],
-    featured: project.featured,
-    createdAt: project._createdAt
-  };
-}
+import type { DevelopmentProject, CreativeProject } from "@/types/projects";
 
 // Hero component props interface
 interface HeroProps {
-  portfolioProjects?: SanityPortfolioProject[];
+  developmentProjects?: DevelopmentProject[];
+  creativeProjects?: CreativeProject[];
 }
 
 // Custom hook for typing effect
@@ -401,30 +380,34 @@ function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?
   );
 }
 
-export function Hero({ portfolioProjects = [] }: HeroProps) {
-  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroProps) {
+  const [selectedProject, setSelectedProject] = useState<DevelopmentProject | CreativeProject | null>(null);
 
   // Debug logging
   useEffect(() => {
     console.log("Hero component mounted - animations should start");
   }, []);
 
-  // Transform portfolio projects and filter by work type
-  const transformedProjects = portfolioProjects.map(transformSanityProject);
-  
-  const creativeProjects = transformedProjects
-    .filter(project => project.workType === 'Creative')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  // Sort projects by featured status and creation date
+  const sortedDevelopmentProjects = developmentProjects
+    .sort((a, b) => {
+      // Featured projects first
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      // Then by creation date
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
     
-  const developmentProjects = transformedProjects
-    .filter(project => project.workType === 'Development')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
-  const contentProjects = transformedProjects
-    .filter(project => project.workType === 'Content')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const sortedCreativeProjects = creativeProjects
+    .sort((a, b) => {
+      // Featured projects first
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      // Then by creation date
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
-  const handleProjectClick = (project: PortfolioProject) => {
+  const handleProjectClick = (project: DevelopmentProject | CreativeProject) => {
     setSelectedProject(project);
   };
 
@@ -834,29 +817,50 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
               </motion.div>
             </motion.div>
 
-            {/* YouTube Stats - Compact Version */}
+          </motion.div>
+
+            {/* YouTube Stats - Full Width with End-to-End Padding */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 2.2 }}
-              className="max-w-4xl mx-auto"
+              className="w-full px-6 md:px-8 lg:px-12"
             >
-              <YouTubeStats channelUrl="https://www.youtube.com/@farhanoic" className="bg-card/50" />
+              <YouTubeStats 
+                channelUrl="https://www.youtube.com/@farhanoic" 
+                className="bg-card/50 w-full"
+                showVideos={false}
+              />
             </motion.div>
-          </motion.div>
+
+            {/* View Full Creator Portfolio Link */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.4 }}
+              className="text-center"
+            >
+              <Link
+                href="/showcase?tab=Creator"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg transition-all duration-300 hover:scale-105 group"
+              >
+                <span className="text-sm font-semibold">View Full Creator Portfolio</span>
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </motion.div>
 
           {/* Developer Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.4 }}
+            transition={{ duration: 0.8, delay: 2.6 }}
             className="w-full max-w-6xl space-y-8"
           >
             {/* Developer Title */}
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2.6 }}
+              transition={{ duration: 0.6, delay: 2.8 }}
               className="text-3xl md:text-4xl font-bold text-center text-foreground"
             >
               Developer
@@ -866,14 +870,14 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2.8 }}
+              transition={{ duration: 0.6, delay: 3.0 }}
               className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
               <motion.div
                 className="flex space-x-6 whitespace-nowrap will-change-transform"
                 animate={{
-                  x: [0, -1920],
+                  x: [-1920, 0],
                 }}
                 transition={{
                   x: {
@@ -905,7 +909,7 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
               transition={{ duration: 0.6, delay: 3.0 }}
               className="max-w-4xl mx-auto"
             >
-              {developmentProjects.length > 0 ? (
+              {sortedDevelopmentProjects.length > 0 ? (
                 <div className="dashboard-card overflow-hidden">
                   {/* Header */}
                   <div className="p-4 border-b border-border">
@@ -924,15 +928,15 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
                   {/* Featured Project Card */}
                   <div 
                     className="p-6 cursor-pointer hover:bg-muted/20 transition-colors"
-                    onClick={() => handleProjectClick(developmentProjects[0])}
+                    onClick={() => handleProjectClick(sortedDevelopmentProjects[0])}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                       {/* Project Thumbnail */}
                       <div className="relative aspect-video bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden rounded-lg">
-                        {developmentProjects[0].thumbnail ? (
+                        {sortedDevelopmentProjects[0].thumbnail ? (
                           <img 
-                            src={developmentProjects[0].thumbnail} 
-                            alt={developmentProjects[0].title}
+                            src={sortedDevelopmentProjects[0].thumbnail} 
+                            alt={sortedDevelopmentProjects[0].projectName}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
@@ -944,12 +948,12 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
                         {/* Overlay */}
                         <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
                           <div className="flex space-x-3">
-                            {developmentProjects[0].demoUrl && (
+                            {sortedDevelopmentProjects[0].siteLink && (
                               <div className="p-2 bg-white/90 rounded-full text-gray-900">
                                 <ExternalLink className="w-4 h-4" />
                               </div>
                             )}
-                            {developmentProjects[0].githubUrl && (
+                            {sortedDevelopmentProjects[0].githubLink && (
                               <div className="p-2 bg-white/90 rounded-full text-gray-900">
                                 <Github className="w-4 h-4" />
                               </div>
@@ -962,21 +966,21 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
                       <div className="space-y-4">
                         <div>
                           <h4 className="text-xl font-bold text-foreground mb-2 hover:text-primary transition-colors">
-                            {developmentProjects[0].title}
+                            {sortedDevelopmentProjects[0].projectName}
                           </h4>
                           <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                            {developmentProjects[0].longDescription}
+                            {sortedDevelopmentProjects[0].description}
                           </p>
                         </div>
                         
                         {/* Technologies */}
-                        {developmentProjects[0].technologies && developmentProjects[0].technologies.length > 0 && (
+                        {sortedDevelopmentProjects[0].techStack && sortedDevelopmentProjects[0].techStack.length > 0 && (
                           <div>
                             <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                              Technologies
+                              Tech Stack
                             </h5>
                             <div className="flex flex-wrap gap-2">
-                              {developmentProjects[0].technologies.slice(0, 6).map((tech, techIndex) => (
+                              {sortedDevelopmentProjects[0].techStack.slice(0, 6).map((tech, techIndex) => (
                                 <span
                                   key={techIndex}
                                   className="px-3 py-1 text-xs bg-green-500/10 text-green-400 rounded-full border border-green-500/30"
@@ -984,9 +988,9 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
                                   {tech}
                                 </span>
                               ))}
-                              {developmentProjects[0].technologies.length > 6 && (
+                              {sortedDevelopmentProjects[0].techStack.length > 6 && (
                                 <span className="px-3 py-1 text-xs bg-muted/50 text-muted-foreground rounded-full border">
-                                  +{developmentProjects[0].technologies.length - 6}
+                                  +{sortedDevelopmentProjects[0].techStack.length - 6}
                                 </span>
                               )}
                             </div>
@@ -995,21 +999,21 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
 
                         {/* Links */}
                         <div className="flex space-x-3">
-                          {developmentProjects[0].demoUrl && (
+                          {sortedDevelopmentProjects[0].siteLink && (
                             <a
-                              href={developmentProjects[0].demoUrl}
+                              href={sortedDevelopmentProjects[0].siteLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center space-x-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <ExternalLink className="w-4 h-4" />
-                              <span>Live Demo</span>
+                              <span>Live Site</span>
                             </a>
                           )}
-                          {developmentProjects[0].githubUrl && (
+                          {sortedDevelopmentProjects[0].githubLink && (
                             <a
-                              href={developmentProjects[0].githubUrl}
+                              href={sortedDevelopmentProjects[0].githubLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center space-x-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted/50 transition-colors"
@@ -1039,6 +1043,22 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
                   </div>
                 </div>
               )}
+            </motion.div>
+
+            {/* View Full Developer Portfolio Link */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.2 }}
+              className="text-center"
+            >
+              <Link
+                href="/showcase?tab=Developer"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg transition-all duration-300 hover:scale-105 group"
+              >
+                <span className="text-sm font-semibold">View Full Developer Portfolio</span>
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
             </motion.div>
           </motion.div>
 
@@ -1093,6 +1113,22 @@ export function Hero({ portfolioProjects = [] }: HeroProps) {
                   </div>
                 ))}
               </motion.div>
+            </motion.div>
+
+            {/* View Full Creative Portfolio Link */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.8 }}
+              className="text-center"
+            >
+              <Link
+                href="/showcase?tab=Editor"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg transition-all duration-300 hover:scale-105 group"
+              >
+                <span className="text-sm font-semibold">View Full Creative Portfolio</span>
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
             </motion.div>
           </motion.div>
 

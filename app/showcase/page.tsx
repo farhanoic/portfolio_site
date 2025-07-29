@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { ShowcaseClient } from '@/components/pages/ShowcaseClient';
-import { getPortfolioProjects } from '@/lib/sanity-data';
+import { getDevelopmentProjects, getCreativeProjects } from '@/lib/sanity-data';
 import { unstable_noStore } from 'next/cache';
 
 export const metadata: Metadata = {
@@ -29,14 +29,40 @@ export default async function ShowcasePage() {
     unstable_noStore();
   }
 
-  // Fetch all portfolio projects
-  let portfolioProjects: any[] = [];
+  // Fetch development and creative projects separately
+  let developmentProjects: any[] = [];
+  let creativeProjects: any[] = [];
+  
   try {
-    portfolioProjects = await getPortfolioProjects();
+    console.log('🚀 Starting to fetch projects for showcase...');
+    
+    // Try to fetch the new project types
+    [developmentProjects, creativeProjects] = await Promise.all([
+      getDevelopmentProjects().catch(err => {
+        console.log('⚠️  Development projects fetch failed for showcase, using empty array:', err.message);
+        return [];
+      }),
+      getCreativeProjects().catch(err => {
+        console.log('⚠️  Creative projects fetch failed for showcase, using empty array:', err.message);
+        return [];
+      })
+    ]);
+    
+    console.log('✅ Successfully fetched projects for showcase:', {
+      developmentProjects: developmentProjects.length,
+      creativeProjects: creativeProjects.length
+    });
+    
   } catch (error) {
-    console.error('Error fetching portfolio projects for showcase:', error);
-    portfolioProjects = [];
+    console.error('❌ Error fetching projects for showcase:', error);
+    developmentProjects = [];
+    creativeProjects = [];
   }
 
-  return <ShowcaseClient portfolioProjects={portfolioProjects} />;
+  return (
+    <ShowcaseClient 
+      developmentProjects={developmentProjects} 
+      creativeProjects={creativeProjects} 
+    />
+  );
 }

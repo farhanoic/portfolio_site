@@ -2,11 +2,23 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, ExternalLink, Github, Play } from 'lucide-react';
-import { PortfolioProject } from '@/types/portfolio';
+import type { DevelopmentProject, CreativeProject } from '@/types/projects';
+
+// Union type for projects that can be displayed in modals
+type DisplayableProject = DevelopmentProject | CreativeProject;
+
+// Helper functions to check project types
+function isDevelopmentProject(project: DisplayableProject): project is DevelopmentProject {
+  return 'projectName' in project && 'techStack' in project;
+}
+
+function isCreativeProject(project: DisplayableProject): project is CreativeProject {
+  return 'kind' in project && 'durationType' in project;
+}
 import VideoEmbed from '@/components/ui/VideoEmbed';
 
 interface ProjectModalProps {
-  project: PortfolioProject | null;
+  project: DisplayableProject | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -14,18 +26,52 @@ interface ProjectModalProps {
 export default function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
   if (!project) return null;
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Design':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'Video':
-        return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'Marketing':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'Development':
-        return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      default:
-        return 'bg-muted text-muted-foreground border-border';
+  // Get project title based on type
+  const getProjectTitle = (project: DisplayableProject): string => {
+    return isDevelopmentProject(project) ? project.projectName : project.name;
+  };
+
+  // Get project description based on type
+  const getProjectDescription = (project: DisplayableProject): string => {
+    return isDevelopmentProject(project) ? project.description : `${project.kind} ${project.durationType} video project`;
+  };
+
+  // Get project technologies/tools based on type
+  const getProjectTechnologies = (project: DisplayableProject): string[] | undefined => {
+    return isDevelopmentProject(project) ? project.techStack : project.softwareTools;
+  };
+
+  // Get project client based on type
+  const getProjectClient = (project: DisplayableProject): string | undefined => {
+    return isDevelopmentProject(project) ? project.clientName : project.clientName;
+  };
+
+  // Get project demo URL based on type
+  const getProjectDemoUrl = (project: DisplayableProject): string | undefined => {
+    return isDevelopmentProject(project) ? project.siteLink : project.videoLink;
+  };
+
+  // Get project github URL based on type
+  const getProjectGithubUrl = (project: DisplayableProject): string | undefined => {
+    return isDevelopmentProject(project) ? project.githubLink : undefined;
+  };
+
+  // Get project type label
+  const getProjectTypeLabel = (project: DisplayableProject): string => {
+    if (isDevelopmentProject(project)) {
+      return 'Development';
+    } else {
+      return `Creative - ${project.kind}`;
+    }
+  };
+
+  const getCategoryColor = (project: DisplayableProject) => {
+    if (isDevelopmentProject(project)) {
+      return 'bg-green-500/20 text-green-400 border-green-500/30';
+    } else {
+      return project.kind === 'Reels' 
+        ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+        : 'bg-blue-500/20 text-blue-400 border-blue-500/30';
     }
   };
 
@@ -51,16 +97,22 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
             {/* Header */}
             <div className="relative">
               <div className="aspect-[16/9] sm:aspect-video bg-muted overflow-hidden">
-                {project.videoUrl ? (
+                {(isCreativeProject(project) && project.videoLink) ? (
                   <VideoEmbed 
-                    url={project.videoUrl}
-                    title={`${project.title} - Demo Video`}
+                    url={project.videoLink}
+                    title={`${getProjectTitle(project)} - Demo Video`}
                     className="w-full h-full"
+                  />
+                ) : project.thumbnail ? (
+                  <img 
+                    src={project.thumbnail} 
+                    alt={getProjectTitle(project)}
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
                     <span className="text-2xl text-muted-foreground font-medium">
-                      {project.category}
+                      {getProjectTypeLabel(project)}
                     </span>
                   </div>
                 )}
@@ -76,12 +128,21 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
 
               {/* Category & Featured Badges */}
               <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex space-x-2">
-                <span className={`px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm rounded border ${getCategoryColor(project.category)}`}>
-                  {project.category}
+                <span className={`px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm rounded border ${getCategoryColor(project)}`}>
+                  {getProjectTypeLabel(project)}
                 </span>
                 {project.featured && (
                   <span className="px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm bg-primary text-primary-foreground rounded">
                     Featured
+                  </span>
+                )}
+                {isCreativeProject(project) && (
+                  <span className={`px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm rounded border ${
+                    project.durationType === 'Short Form' 
+                      ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                      : 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                  }`}>
+                    {project.durationType}
                   </span>
                 )}
               </div>
@@ -94,13 +155,13 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between space-y-4 lg:space-y-0">
                   <div className="space-y-2">
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                      {project.title}
+                      {getProjectTitle(project)}
                     </h2>
-                    {project.client && (
+                    {getProjectClient(project) && (
                       <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center space-x-1">
                           <User className="w-4 h-4" />
-                          <span>{project.client}</span>
+                          <span>{getProjectClient(project)}</span>
                         </span>
                       </div>
                     )}
@@ -108,20 +169,29 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    {project.demoUrl && (
+                    {getProjectDemoUrl(project) && (
                       <a
-                        href={project.demoUrl}
+                        href={getProjectDemoUrl(project)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                       >
-                        <ExternalLink className="w-4 h-4" />
-                        <span>Live Demo</span>
+                        {isDevelopmentProject(project) ? (
+                          <>
+                            <ExternalLink className="w-4 h-4" />
+                            <span>Live Site</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4" />
+                            <span>Watch Video</span>
+                          </>
+                        )}
                       </a>
                     )}
-                    {project.githubUrl && (
+                    {getProjectGithubUrl(project) && (
                       <a
-                        href={project.githubUrl}
+                        href={getProjectGithubUrl(project)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
@@ -138,16 +208,25 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
               <div className="space-y-3">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground">About This Project</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  {project.longDescription}
+                  {getProjectDescription(project)}
                 </p>
+                {isCreativeProject(project) && project.clientName && (
+                  <div className="pt-2">
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-medium">Client:</span> {project.clientName}
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Technologies */}
-              {project.technologies && project.technologies.length > 0 && (
+              {/* Technologies/Tools */}
+              {getProjectTechnologies(project) && getProjectTechnologies(project)!.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground">Technologies Used</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                    {isDevelopmentProject(project) ? 'Technologies Used' : 'Software & Tools Used'}
+                  </h3>
                   <div className="flex flex-wrap gap-2">
-                    {project.technologies.map(tech => (
+                    {getProjectTechnologies(project)!.map(tech => (
                       <span
                         key={tech}
                         className="px-3 py-1 bg-muted border border-border rounded-md text-sm text-muted-foreground"
@@ -159,26 +238,16 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
                 </div>
               )}
 
-              {/* CTA */}
-              <div className="pt-4 border-t border-border text-center space-y-4">
-                <h3 className="text-base sm:text-lg font-semibold text-foreground">
-                  Interested in similar work?
-                </h3>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <a
-                    href="/hire-me"
-                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
-                  >
-                    Hire Me for Your Project
-                  </a>
-                  <a
-                    href="mailto:hello@farhanoic.me"
-                    className="px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted transition-colors font-medium"
-                  >
-                    Get in Touch
-                  </a>
-                </div>
+              {/* Subtle Contact Link */}
+              <div className="pt-6 text-center border-t border-border/50">
+                <a
+                  href="/hire-me#contact"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+                >
+                  Interested in working together? Get in touch →
+                </a>
               </div>
+
             </div>
           </motion.div>
         </motion.div>

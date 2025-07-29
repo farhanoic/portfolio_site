@@ -1,4 +1,4 @@
-import { getServicesCatalogData, getPortfolioCatalogData } from "@/lib/sanity-data";
+import { getServicesCatalogData } from "@/lib/sanity-data";
 import HireMeClient from "@/components/pages/HireMeClient";
 import type { ServiceCategory, ServiceFilter, ServiceItem } from "@/types/services";
 import { unstable_noStore } from 'next/cache';
@@ -42,8 +42,6 @@ interface HireMePageProps {
   categories: ServiceCategory[];
   filters: ServiceFilter[];
   services: ServiceItem[];
-  portfolioCategories: any[];
-  portfolioProjects: any[];
 }
 
 // Server-side data fetching
@@ -54,28 +52,21 @@ async function getData(): Promise<HireMePageProps> {
   }
   
   try {
-    // Fetch both services and portfolio data
-    const [servicesData, portfolioData] = await Promise.all([
-      getServicesCatalogData(),
-      getPortfolioCatalogData()
-    ]);
+    // Fetch services data
+    const servicesData = await getServicesCatalogData();
     
     // Use fallback data if Sanity is empty
     return {
       categories: servicesData.categories.length > 0 ? servicesData.categories : fallbackCategories,
       filters: servicesData.filters.length > 0 ? servicesData.filters : fallbackFilters,
-      services: servicesData.services || [],
-      portfolioCategories: portfolioData.categories || [],
-      portfolioProjects: portfolioData.projects || []
+      services: servicesData.services || []
     };
   } catch (error) {
     console.error('Error fetching data:', error);
     return {
       categories: fallbackCategories,
       filters: fallbackFilters,
-      services: [],
-      portfolioCategories: [],
-      portfolioProjects: []
+      services: []
     };
   }
 }
@@ -85,15 +76,13 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function HireMePage() {
-  const { categories, filters, services, portfolioCategories, portfolioProjects } = await getData();
+  const { categories, filters, services } = await getData();
 
   return (
     <HireMeClient 
       categories={categories}
       filters={filters}
       services={services}
-      portfolioCategories={portfolioCategories}
-      portfolioProjects={portfolioProjects}
     />
   );
 }

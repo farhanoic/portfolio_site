@@ -7,13 +7,17 @@ import {
   servicesByFilterQuery,
   serviceByIdQuery,
   servicesCatalogQuery,
-  portfolioCatalogQuery,
-  portfolioProjectsQuery,
-  portfolioProjectsByCategoryQuery,
-  featuredPortfolioProjectsQuery,
-  portfolioCategoriesQuery,
-  portfolioProjectByIdQuery,
-  portfolioProjectBySlugQuery,
+  developmentProjectsQuery,
+  featuredDevelopmentProjectsQuery,
+  developmentProjectByIdQuery,
+  developmentProjectBySlugQuery,
+  creativeProjectsQuery,
+  creativeProjectsByKindQuery,
+  creativeProjectsByDurationQuery,
+  featuredCreativeProjectsQuery,
+  creativeProjectByIdQuery,
+  creativeProjectBySlugQuery,
+  projectsCatalogQuery,
   blogCategoriesQuery,
   blogPostsQuery,
   blogPostsByCategoryQuery,
@@ -30,6 +34,14 @@ import type { ServiceCategory, ServiceFilter, ServiceItem } from '@/types/servic
 import type { BlogPost, BlogCategory, BlogPostsResponse, BlogSearchParams } from '@/types/blog';
 import { BLOG_AUTHOR } from '@/lib/author-constants';
 import type { ResourceCategory, Resource, ResourcesCatalogData, ResourceSearchParams } from '@/types/resources';
+import type { 
+  SanityDevelopmentProject, 
+  DevelopmentProject, 
+  SanityCreativeProject, 
+  CreativeProject,
+  ProjectCatalogData 
+} from '@/types/projects';
+import { urlFor } from '@/lib/sanity';
 
 // Use live client in development for real-time updates
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -125,134 +137,227 @@ export async function getServicesCatalogData(): Promise<{
   }
 }
 
-// Portfolio Data Types and Functions
 
-export interface PortfolioCategory {
-  _id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  order: number;
-}
+// =============================================================================
+// PROJECT DATA FUNCTIONS
+// =============================================================================
 
-export interface PortfolioProject {
-  _id: string;
-  title: string;
-  slug: string;
-  longDescription: string;
-  thumbnail: any; // Sanity image object
-  videoUrl?: string;
-  demoUrl?: string;
-  githubUrl?: string;
-  client?: string;
-  technologies?: string[];
-  featured: boolean;
-  order: number;
-  category: {
-    _id: string;
-    name: string;
-    slug: string;
+// Transform Sanity development project to component format
+function transformSanityDevelopmentProject(project: SanityDevelopmentProject): DevelopmentProject {
+  return {
+    id: project._id,
+    projectName: project.projectName,
+    slug: project.slug,
+    description: project.description,
+    thumbnail: project.thumbnail ? urlFor(project.thumbnail).width(600).height(400).url() : '',
+    clientName: project.clientName,
+    clientLogo: project.clientLogo ? urlFor(project.clientLogo).width(200).height(200).url() : undefined,
+    techStack: project.techStack || [],
+    githubLink: project.githubLink,
+    siteLink: project.siteLink,
+    featured: project.featured,
+    order: project.order,
+    createdAt: project._createdAt
   };
-  workType: 'Creative' | 'Development' | 'Content';
-  _createdAt: string;
-  _updatedAt: string;
 }
 
-// Fetch all portfolio data (categories and projects)
-export async function getPortfolioCatalogData(): Promise<{
-  categories: PortfolioCategory[];
-  projects: PortfolioProject[];
-}> {
+// Generate smart thumbnail URL based on project kind
+function generateCreativeThumbnailUrl(thumbnail: any, kind: 'Reels' | 'Landscape'): string {
+  if (!thumbnail) return '';
+  
+  // Smart image transformations based on project kind
+  if (kind === 'Reels') {
+    // Reels: Vertical format optimized for mobile/vertical display
+    return urlFor(thumbnail)
+      .width(400)
+      .height(600)
+      .fit('crop')
+      .crop('center')
+      .auto('format')
+      .quality(85)
+      .url();
+  } else {
+    // Landscape: Horizontal format optimized for desktop/horizontal display
+    return urlFor(thumbnail)
+      .width(600)
+      .height(400)
+      .fit('crop')
+      .crop('center')
+      .auto('format')
+      .quality(85)
+      .url();
+  }
+}
+
+// Transform Sanity creative project to component format
+function transformSanityCreativeProject(project: SanityCreativeProject): CreativeProject {
+  return {
+    id: project._id,
+    name: project.name,
+    slug: project.slug,
+    thumbnail: generateCreativeThumbnailUrl(project.thumbnail, project.kind),
+    clientName: project.clientName,
+    clientLogo: project.clientLogo ? urlFor(project.clientLogo).width(200).height(200).url() : undefined,
+    kind: project.kind,
+    durationType: project.durationType,
+    videoLink: project.videoLink,
+    softwareTools: project.softwareTools || [],
+    featured: project.featured,
+    order: project.order,
+    createdAt: project._createdAt
+  };
+}
+
+// Fetch all development projects
+export async function getDevelopmentProjects(): Promise<DevelopmentProject[]> {
   try {
-    const data = await activeClient.fetch(portfolioCatalogQuery);
+    const projects = await activeClient.fetch(developmentProjectsQuery);
+    console.log('💻 Development projects fetched:', projects?.length || 0);
+    return projects ? projects.map(transformSanityDevelopmentProject) : [];
+  } catch (error: any) {
+    console.error('❌ Error fetching development projects:', error);
+    console.error('Error details:', {
+      message: error?.message || 'Unknown error',
+      stack: error?.stack || 'No stack trace',
+      query: developmentProjectsQuery
+    });
+    return [];
+  }
+}
+
+// Fetch featured development projects
+export async function getFeaturedDevelopmentProjects(): Promise<DevelopmentProject[]> {
+  try {
+    const projects = await activeClient.fetch(featuredDevelopmentProjectsQuery);
+    console.log('⭐ Featured development projects fetched:', projects?.length || 0);
+    return projects ? projects.map(transformSanityDevelopmentProject) : [];
+  } catch (error) {
+    console.error('❌ Error fetching featured development projects:', error);
+    return [];
+  }
+}
+
+// Fetch single development project by ID
+export async function getDevelopmentProjectById(projectId: string): Promise<DevelopmentProject | null> {
+  try {
+    const project = await activeClient.fetch(developmentProjectByIdQuery, { projectId });
+    console.log(`🔍 Development project by ID '${projectId}':`, project ? 'found' : 'not found');
+    return project ? transformSanityDevelopmentProject(project) : null;
+  } catch (error) {
+    console.error('❌ Error fetching development project by ID:', error);
+    return null;
+  }
+}
+
+// Fetch single development project by slug
+export async function getDevelopmentProjectBySlug(slug: string): Promise<DevelopmentProject | null> {
+  try {
+    const project = await activeClient.fetch(developmentProjectBySlugQuery, { slug });
+    console.log(`🔍 Development project by slug '${slug}':`, project ? 'found' : 'not found');
+    return project ? transformSanityDevelopmentProject(project) : null;
+  } catch (error) {
+    console.error('❌ Error fetching development project by slug:', error);
+    return null;
+  }
+}
+
+// Fetch all creative projects
+export async function getCreativeProjects(): Promise<CreativeProject[]> {
+  try {
+    const projects = await activeClient.fetch(creativeProjectsQuery);
+    console.log('🎨 Creative projects fetched:', projects?.length || 0);
+    return projects ? projects.map(transformSanityCreativeProject) : [];
+  } catch (error: any) {
+    console.error('❌ Error fetching creative projects:', error);
+    console.error('Error details:', {
+      message: error?.message || 'Unknown error',
+      stack: error?.stack || 'No stack trace',
+      query: creativeProjectsQuery
+    });
+    return [];
+  }
+}
+
+// Fetch creative projects by kind
+export async function getCreativeProjectsByKind(kind: 'Reels' | 'Landscape'): Promise<CreativeProject[]> {
+  try {
+    const projects = await activeClient.fetch(creativeProjectsByKindQuery, { kind });
+    console.log(`🎬 Creative projects by kind '${kind}':`, projects?.length || 0);
+    return projects ? projects.map(transformSanityCreativeProject) : [];
+  } catch (error) {
+    console.error('❌ Error fetching creative projects by kind:', error);
+    return [];
+  }
+}
+
+// Fetch creative projects by duration type
+export async function getCreativeProjectsByDuration(durationType: 'Short Form' | 'Long Form'): Promise<CreativeProject[]> {
+  try {
+    const projects = await activeClient.fetch(creativeProjectsByDurationQuery, { durationType });
+    console.log(`⏱️ Creative projects by duration '${durationType}':`, projects?.length || 0);
+    return projects ? projects.map(transformSanityCreativeProject) : [];
+  } catch (error) {
+    console.error('❌ Error fetching creative projects by duration:', error);
+    return [];
+  }
+}
+
+// Fetch featured creative projects
+export async function getFeaturedCreativeProjects(): Promise<CreativeProject[]> {
+  try {
+    const projects = await activeClient.fetch(featuredCreativeProjectsQuery);
+    console.log('⭐ Featured creative projects fetched:', projects?.length || 0);
+    return projects ? projects.map(transformSanityCreativeProject) : [];
+  } catch (error) {
+    console.error('❌ Error fetching featured creative projects:', error);
+    return [];
+  }
+}
+
+// Fetch single creative project by ID
+export async function getCreativeProjectById(projectId: string): Promise<CreativeProject | null> {
+  try {
+    const project = await activeClient.fetch(creativeProjectByIdQuery, { projectId });
+    console.log(`🔍 Creative project by ID '${projectId}':`, project ? 'found' : 'not found');
+    return project ? transformSanityCreativeProject(project) : null;
+  } catch (error) {
+    console.error('❌ Error fetching creative project by ID:', error);
+    return null;
+  }
+}
+
+// Fetch single creative project by slug
+export async function getCreativeProjectBySlug(slug: string): Promise<CreativeProject | null> {
+  try {
+    const project = await activeClient.fetch(creativeProjectBySlugQuery, { slug });
+    console.log(`🔍 Creative project by slug '${slug}':`, project ? 'found' : 'not found');
+    return project ? transformSanityCreativeProject(project) : null;
+  } catch (error) {
+    console.error('❌ Error fetching creative project by slug:', error);
+    return null;
+  }
+}
+
+// Fetch all project data (combined)
+export async function getProjectsCatalogData(): Promise<ProjectCatalogData> {
+  try {
+    const data = await activeClient.fetch(projectsCatalogQuery);
     
-    console.log('📊 Portfolio catalog data fetched:', {
-      categories: data?.categories?.length || 0,
-      projects: data?.projects?.length || 0
+    console.log('📊 Projects catalog data fetched:', {
+      developmentProjects: data?.developmentProjects?.length || 0,
+      creativeProjects: data?.creativeProjects?.length || 0
     });
     
     return {
-      categories: data.categories || [],
-      projects: data.projects || []
+      developmentProjects: data.developmentProjects ? data.developmentProjects.map(transformSanityDevelopmentProject) : [],
+      creativeProjects: data.creativeProjects ? data.creativeProjects.map(transformSanityCreativeProject) : []
     };
   } catch (error) {
-    console.error('❌ Error fetching portfolio catalog data:', error);
+    console.error('❌ Error fetching projects catalog data:', error);
     return {
-      categories: [],
-      projects: []
+      developmentProjects: [],
+      creativeProjects: []
     };
-  }
-}
-
-// Fetch all portfolio projects
-export async function getPortfolioProjects(): Promise<PortfolioProject[]> {
-  try {
-    const projects = await activeClient.fetch(portfolioProjectsQuery);
-    console.log('📄 Portfolio projects fetched:', projects?.length || 0);
-    return projects || [];
-  } catch (error) {
-    console.error('❌ Error fetching portfolio projects:', error);
-    return [];
-  }
-}
-
-// Fetch portfolio projects by category
-export async function getPortfolioProjectsByCategory(categorySlug: string): Promise<PortfolioProject[]> {
-  try {
-    const projects = await activeClient.fetch(portfolioProjectsByCategoryQuery, { categorySlug });
-    console.log(`📂 Portfolio projects for category '${categorySlug}':`, projects?.length || 0);
-    return projects || [];
-  } catch (error) {
-    console.error('❌ Error fetching portfolio projects by category:', error);
-    return [];
-  }
-}
-
-// Fetch featured portfolio projects
-export async function getFeaturedPortfolioProjects(): Promise<PortfolioProject[]> {
-  try {
-    const projects = await activeClient.fetch(featuredPortfolioProjectsQuery);
-    console.log('⭐ Featured portfolio projects fetched:', projects?.length || 0);
-    return projects || [];
-  } catch (error) {
-    console.error('❌ Error fetching featured portfolio projects:', error);
-    return [];
-  }
-}
-
-// Fetch all portfolio categories
-export async function getPortfolioCategories(): Promise<PortfolioCategory[]> {
-  try {
-    const categories = await activeClient.fetch(portfolioCategoriesQuery);
-    console.log('📋 Portfolio categories fetched:', categories?.length || 0);
-    return categories || [];
-  } catch (error) {
-    console.error('❌ Error fetching portfolio categories:', error);
-    return [];
-  }
-}
-
-// Fetch single portfolio project by ID
-export async function getPortfolioProjectById(projectId: string): Promise<PortfolioProject | null> {
-  try {
-    const project = await activeClient.fetch(portfolioProjectByIdQuery, { projectId });
-    console.log(`🔍 Portfolio project by ID '${projectId}':`, project ? 'found' : 'not found');
-    return project;
-  } catch (error) {
-    console.error('❌ Error fetching portfolio project by ID:', error);
-    return null;
-  }
-}
-
-// Fetch single portfolio project by slug
-export async function getPortfolioProjectBySlug(slug: string): Promise<PortfolioProject | null> {
-  try {
-    const project = await activeClient.fetch(portfolioProjectBySlugQuery, { slug });
-    console.log(`🔍 Portfolio project by slug '${slug}':`, project ? 'found' : 'not found');
-    return project;
-  } catch (error) {
-    console.error('❌ Error fetching portfolio project by slug:', error);
-    return null;
   }
 }
 

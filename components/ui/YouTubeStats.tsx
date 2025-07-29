@@ -53,8 +53,8 @@ export default function YouTubeStats({
     setIsClient(true);
     fetchYouTubeStats();
     
-    // Refresh stats every 5 minutes
-    const interval = setInterval(fetchYouTubeStats, 5 * 60 * 1000);
+    // Refresh stats every 30 minutes (reduced from 5 minutes)
+    const interval = setInterval(fetchYouTubeStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -68,6 +68,34 @@ export default function YouTubeStats({
   const fetchYouTubeStats = async () => {
     try {
       setLoading(true);
+      
+      // TEMPORARY: Use sample channel data while API is being fixed
+      const USE_SAMPLE_CHANNEL_DATA = false;
+      
+      if (USE_SAMPLE_CHANNEL_DATA) {
+        console.log('📺 Using sample channel data (API bypass enabled)');
+        
+        // Realistic channel stats
+        const sampleStats = {
+          channelTitle: 'Farhan Azhar',
+          channelThumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_kNKVz3bFSxTjlvHJq7ExWM9bCdRl5fGnGvN7pMkA=s176-c-k-c0x00ffffff-no-rj',
+          subscriberCount: 3800,
+          viewCount: 580000,
+          videoCount: 42,
+          shortFormCount: 15,
+          longFormCount: 27,
+          videos: [], // No videos to avoid additional API calls
+          shorts: [], // No shorts to avoid additional API calls  
+          allVideos: [],
+          lastUpdated: new Date().toISOString()
+        };
+        
+        setStats(sampleStats);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch('/api/youtube-stats');
       
       if (!response.ok) {
@@ -81,7 +109,7 @@ export default function YouTubeStats({
         channelTitle: data.channelTitle || 'Farhan Azhar',
         channelThumbnail: data.channelThumbnail || 'https://yt3.googleusercontent.com/ytc/AIdro_kNKVz3bFSxTjlvHJq7ExWM9bCdRl5fGnGvN7pMkA=s176-c-k-c0x00ffffff-no-rj',
         subscriberCount: typeof data.subscriberCount === 'number' ? data.subscriberCount : 3500,
-        viewCount: typeof data.viewCount === 'number' ? data.viewCount : 544200,
+        viewCount: typeof data.viewCount === 'number' ? data.viewCount : 544336,
         videoCount: typeof data.videoCount === 'number' ? data.videoCount : 30,
         shortFormCount: typeof data.shortFormCount === 'number' ? data.shortFormCount : 10,
         longFormCount: typeof data.longFormCount === 'number' ? data.longFormCount : 20,
@@ -94,13 +122,13 @@ export default function YouTubeStats({
       setStats(sanitizedStats);
       setError(null);
     } catch (err) {
-      console.error('Error fetching YouTube stats:', err);
+      console.error('📺 Error fetching YouTube stats:', err);
       // Set fallback data to prevent error display
       setStats({
         channelTitle: 'Farhan Azhar',
         channelThumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_kNKVz3bFSxTjlvHJq7ExWM9bCdRl5fGnGvN7pMkA=s176-c-k-c0x00ffffff-no-rj',
         subscriberCount: 3500,
-        viewCount: 544200,
+        viewCount: 544336,
         videoCount: 30,
         shortFormCount: 10,
         longFormCount: 20,
@@ -109,7 +137,7 @@ export default function YouTubeStats({
         allVideos: [],
         lastUpdated: new Date().toISOString()
       });
-      setError('Failed to load YouTube stats');
+      setError(null); // Don't show error, just use fallback data
     } finally {
       setLoading(false);
     }

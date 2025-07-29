@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server';
 const API_KEY = process.env.YOUTUBE_API_KEY;
 const CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID; // Your channel ID
 
+// Simple in-memory cache to reduce API calls
+let cachedData: any = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
 export async function GET() {
   try {
     if (!API_KEY || !CHANNEL_ID) {
@@ -10,6 +15,17 @@ export async function GET() {
         { error: 'Missing API key or channel ID' },
         { status: 500 }
       );
+    }
+
+    // Check if we have fresh cached data
+    const now = Date.now();
+    if (cachedData && (now - lastFetchTime) < CACHE_DURATION) {
+      console.log('Serving cached YouTube data');
+      return NextResponse.json(cachedData, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600'
+        }
+      });
     }
 
     // Get channel statistics
@@ -121,9 +137,14 @@ export async function GET() {
       lastUpdated: new Date().toISOString()
     };
 
+    // Cache the successful response
+    cachedData = youtubeStats;
+    lastFetchTime = now;
+    console.log('Fresh YouTube data cached');
+
     return NextResponse.json(youtubeStats, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' // Cache for 5 minutes
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600' // Cache for 30 minutes
       }
     });
 
@@ -148,7 +169,7 @@ export async function GET() {
     
     return NextResponse.json(fallbackData, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' // Shorter cache for fallback
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200' // 10 minutes cache for fallback
       }
     });
   }

@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Trophy,
-  Star, 
   Calendar, 
   ExternalLink, 
   Github, 
@@ -19,43 +17,47 @@ import {
   Camera
 } from 'lucide-react';
 import Link from 'next/link';
-import { urlFor } from '@/lib/sanity';
-import type { PortfolioProject as SanityPortfolioProject } from '@/lib/sanity-data';
-import type { PortfolioProject } from '@/types/portfolio';
-import { categorizeWorkType } from '@/types/portfolio';
+import type { DevelopmentProject, CreativeProject } from '@/types/projects';
 import ProjectModal from '@/components/portfolio/ProjectModal';
 import YouTubeStatsWrapper from '@/components/ui/YouTubeStatsWrapper';
 
-// Transform Sanity data to component format
-function transformSanityProject(project: SanityPortfolioProject): PortfolioProject {
-  return {
-    id: project._id,
-    title: project.title,
-    slug: project.slug,
-    longDescription: project.longDescription,
-    category: project.category.name,
-    workType: project.workType || categorizeWorkType(project.category.name),
-    thumbnail: project.thumbnail ? urlFor(project.thumbnail).width(600).height(400).url() : '',
-    videoUrl: project.videoUrl,
-    demoUrl: project.demoUrl,
-    githubUrl: project.githubUrl,
-    client: project.client,
-    technologies: project.technologies || [],
-    featured: project.featured,
-    createdAt: project._createdAt
-  };
+// Union type for projects that can be displayed in modals
+type DisplayableProject = DevelopmentProject | CreativeProject;
+
+// Helper functions to check project types
+function isDevelopmentProject(project: DisplayableProject): project is DevelopmentProject {
+  return 'projectName' in project && 'techStack' in project;
+}
+
+function isCreativeProject(project: DisplayableProject): project is CreativeProject {
+  return 'kind' in project && 'durationType' in project;
 }
 
 interface ShowcaseClientProps {
-  portfolioProjects: SanityPortfolioProject[];
+  developmentProjects: DevelopmentProject[];
+  creativeProjects: CreativeProject[];
 }
 
-export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
-  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+export function ShowcaseClient({ developmentProjects, creativeProjects }: ShowcaseClientProps) {
+  const [selectedProject, setSelectedProject] = useState<DisplayableProject | null>(null);
   const [activeTab, setActiveTab] = useState<'Developer' | 'Editor' | 'Creator'>('Developer');
+  const [selectedClient, setSelectedClient] = useState<string | null>(null);
 
-  // Transform projects
-  const transformedProjects = portfolioProjects.map(transformSanityProject);
+
+  // YouTube stats are now only used in Creator tab via YouTubeStatsWrapper component
+
+  // Check URL parameter to set initial tab
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      if (tabParam === 'Creator' || tabParam === 'Editor' || tabParam === 'Developer') {
+        setActiveTab(tabParam as 'Developer' | 'Editor' | 'Creator');
+      }
+    }
+  }, []);
+
+  // No transformation needed - projects are already in the correct format
 
   // Tab configuration
   const tabs = [
@@ -63,7 +65,6 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
       id: 'Developer' as const,
       label: 'Developer',
       icon: Code,
-      workType: 'Development' as const,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
       borderColor: 'border-green-500/30'
@@ -72,7 +73,6 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
       id: 'Editor' as const,
       label: 'Editor',
       icon: Edit3,
-      workType: 'Creative' as const,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
       borderColor: 'border-blue-500/30'
@@ -81,7 +81,6 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
       id: 'Creator' as const,
       label: 'Creator',
       icon: Camera,
-      workType: 'Content' as const,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/30'
@@ -90,6 +89,20 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
 
   // Get current tab configuration
   const currentTab = tabs.find(tab => tab.id === activeTab)!;
+
+  // Get unique clients from creative projects with their logos
+  const uniqueClients = Array.from(
+    new Map(
+      creativeProjects
+        .filter(project => project.clientName)
+        .map(project => [project.clientName, { name: project.clientName, logo: project.clientLogo }])
+    ).values()
+  ).sort((a, b) => a.name!.localeCompare(b.name!));
+
+  // Filter creative projects by selected client
+  const filteredCreativeProjects = selectedClient 
+    ? creativeProjects.filter(project => project.clientName === selectedClient)
+    : creativeProjects;
 
 
 
@@ -118,12 +131,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
   };
 
 
-  // Get Development projects from Sanity data
-  const developerProjects = transformedProjects.filter(project => 
-    project.workType === 'Development'
-  );
+  // Projects are already separated by type
 
-  const handleProjectClick = (project: PortfolioProject) => {
+  const handleProjectClick = (project: DisplayableProject) => {
     setSelectedProject(project);
   };
 
@@ -461,140 +471,245 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
               </motion.div>
             )}
 
+
             {/* Creative Projects Section - Only show for Editor tab */}
             {activeTab === 'Editor' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
                 className="mb-16"
               >
                 <h2 className="text-2xl font-bold text-center mb-8">Creative Projects</h2>
-                <div className="max-w-6xl mx-auto">
-                  {transformedProjects.filter(project => project.workType === 'Creative').length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {transformedProjects
-                        .filter(project => project.workType === 'Creative')
-                        .map((project, index) => (
-                        <motion.div
-                          key={project.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-                          className="dashboard-card overflow-hidden group hover:shadow-lg transition-all duration-300"
-                          onClick={() => handleProjectClick(project)}
-                        >
-                          {/* Project Thumbnail */}
-                          <div className="relative aspect-video bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden">
-                            {project.thumbnail ? (
+                
+                {/* Client Filter Tags */}
+                {uniqueClients.length > 0 && (
+                  <div className="max-w-4xl mx-auto mb-8">
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {/* All Projects Button */}
+                      <motion.button
+                        onClick={() => setSelectedClient(null)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                          selectedClient === null
+                            ? 'bg-primary text-primary-foreground shadow-lg'
+                            : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        All Clients ({creativeProjects.length})
+                      </motion.button>
+                      
+                      {/* Client Filter Buttons */}
+                      {uniqueClients.map((client) => {
+                        const clientProjectCount = creativeProjects.filter(p => p.clientName === client.name).length;
+                        return (
+                          <motion.button
+                            key={client.name}
+                            onClick={() => setSelectedClient(client.name!)}
+                            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                              selectedClient === client.name
+                                ? 'bg-primary text-primary-foreground shadow-lg'
+                                : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {client.logo && (
                               <img 
-                                src={project.thumbnail} 
-                                alt={project.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                src={client.logo} 
+                                alt={`${client.name} logo`}
+                                className="w-5 h-5 object-contain rounded"
                                 onError={(e) => {
-                                  // Fallback to gradient background if image fails to load
                                   e.currentTarget.style.display = 'none';
                                 }}
                               />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Edit3 className="w-12 h-12 text-muted-foreground/50" />
-                              </div>
                             )}
-                            
-                            {/* Overlay on hover */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <div className="flex space-x-3">
-                                {project.demoUrl && (
-                                  <a
-                                    href={project.demoUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 bg-white/90 hover:bg-white rounded-full text-gray-900 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <ExternalLink className="w-4 h-4" />
-                                  </a>
-                                )}
-                                {project.videoUrl && (
-                                  <a
-                                    href={project.videoUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 bg-white/90 hover:bg-white rounded-full text-gray-900 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <Play className="w-4 h-4" />
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Project Info */}
-                          <div className="p-6">
-                            <h3 className="font-bold text-lg text-foreground mb-2 group-hover:text-primary transition-colors">
-                              {project.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                              {project.longDescription}
-                            </p>
-                            
-                            {/* Technologies */}
-                            {project.technologies && project.technologies.length > 0 && (
-                              <div className="mb-4">
-                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                  Tools Used
-                                </h4>
-                                <div className="flex flex-wrap gap-1">
-                                  {project.technologies.slice(0, 4).map((tech, techIndex) => (
-                                    <span
-                                      key={techIndex}
-                                      className="px-2 py-1 text-xs bg-muted/50 text-foreground rounded border"
-                                    >
-                                      {tech}
-                                    </span>
-                                  ))}
-                                  {project.technologies.length > 4 && (
-                                    <span className="px-2 py-1 text-xs bg-muted/50 text-muted-foreground rounded border">
-                                      +{project.technologies.length - 4}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Links */}
-                            <div className="flex space-x-3">
-                              {project.demoUrl && (
-                                <a
-                                  href={project.demoUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  <span>View Project</span>
-                                </a>
-                              )}
-                              {project.videoUrl && (
-                                <a
-                                  href={project.videoUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center space-x-1 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Play className="w-3 h-3" />
-                                  <span>Watch</span>
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                            <span>{client.name} ({clientProjectCount})</span>
+                          </motion.button>
+                        );
+                      })}
                     </div>
+                  </div>
+                )}
+
+                <div className="max-w-7xl mx-auto">
+                  {filteredCreativeProjects.length > 0 ? (
+                    <>
+                      {/* Landscape Videos Section */}
+                      {(() => {
+                        const landscapeProjects = filteredCreativeProjects.filter(p => p.kind === 'Landscape');
+                        return landscapeProjects.length > 0 ? (
+                          <div className="mb-12">
+                            <div className="flex items-center justify-between mb-6">
+                              <h3 className="text-xl font-bold text-foreground">
+                                Landscape Videos
+                                <span className="ml-2 text-sm text-muted-foreground">({landscapeProjects.length})</span>
+                              </h3>
+                            </div>
+                            <div className="overflow-x-auto pb-4">
+                              <div className="flex space-x-4" style={{ width: 'max-content' }}>
+                                {landscapeProjects.map((project, index) => (
+                                  <motion.div
+                                    key={project.id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                    className="dashboard-card overflow-hidden group hover:shadow-lg transition-all duration-300 flex-shrink-0 w-80"
+                                    onClick={() => handleProjectClick(project)}
+                                  >
+                                    {/* Landscape Thumbnail */}
+                                    <div className="relative bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden aspect-video">
+                                      {project.thumbnail ? (
+                                        <img 
+                                          src={project.thumbnail} 
+                                          alt={project.name}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <Video className="w-12 h-12 text-muted-foreground/50" />
+                                        </div>
+                                      )}
+                                      
+                                      {/* Play Overlay */}
+                                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
+                                          <Play className="w-6 h-6 text-gray-900 ml-1" />
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Project Info */}
+                                    <div className="p-4">
+                                      <h4 className="font-bold text-sm text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                                        {project.name}
+                                      </h4>
+                                      
+                                      <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">
+                                          {project.kind}
+                                        </span>
+                                        <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded">
+                                          {project.durationType}
+                                        </span>
+                                      </div>
+
+                                      {project.clientName && (
+                                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                                          {project.clientLogo && (
+                                            <img 
+                                              src={project.clientLogo} 
+                                              alt={`${project.clientName} logo`}
+                                              className="w-3 h-3 object-contain rounded"
+                                              onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                              }}
+                                            />
+                                          )}
+                                          <span className="truncate">{project.clientName}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+
+                      {/* Vertical Videos (Reels/Shorts) Section */}
+                      {(() => {
+                        const reelsProjects = filteredCreativeProjects.filter(p => p.kind === 'Reels');
+                        return reelsProjects.length > 0 ? (
+                          <div className="mb-12">
+                            <div className="flex items-center justify-between mb-6">
+                              <h3 className="text-xl font-bold text-foreground">
+                                Vertical Videos - Reels/Shorts
+                                <span className="ml-2 text-sm text-muted-foreground">({reelsProjects.length})</span>
+                              </h3>
+                            </div>
+                            <div className="overflow-x-auto pb-4">
+                              <div className="flex space-x-4" style={{ width: 'max-content' }}>
+                                {reelsProjects.map((project, index) => (
+                                  <motion.div
+                                    key={project.id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                    className="dashboard-card overflow-hidden group hover:shadow-lg transition-all duration-300 flex-shrink-0 w-64"
+                                    onClick={() => handleProjectClick(project)}
+                                  >
+                                    {/* Vertical Thumbnail */}
+                                    <div className="relative bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden aspect-[9/16]">
+                                      {project.thumbnail ? (
+                                        <img 
+                                          src={project.thumbnail} 
+                                          alt={project.name}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <Video className="w-12 h-12 text-muted-foreground/50" />
+                                        </div>
+                                      )}
+                                      
+                                      {/* Play Overlay */}
+                                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                                          <Play className="w-4 h-4 text-gray-900 ml-0.5" />
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Project Info */}
+                                    <div className="p-3">
+                                      <h4 className="font-bold text-sm text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                                        {project.name}
+                                      </h4>
+                                      
+                                      <div className="flex flex-col space-y-1 text-xs text-muted-foreground mb-2">
+                                        <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-center">
+                                          {project.kind}
+                                        </span>
+                                        <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-center">
+                                          {project.durationType}
+                                        </span>
+                                      </div>
+
+                                      {project.clientName && (
+                                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                                          {project.clientLogo && (
+                                            <img 
+                                              src={project.clientLogo} 
+                                              alt={`${project.clientName} logo`}
+                                              className="w-3 h-3 object-contain rounded"
+                                              onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                              }}
+                                            />
+                                          )}
+                                          <span className="truncate">{project.clientName}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+                    </>
                   ) : (
                     <div className="text-center py-12">
                       <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -746,6 +861,7 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                 <YouTubeStatsWrapper channelUrl="https://www.youtube.com/@farhanoic" />
               </motion.div>
             )}
+
           </motion.div>
         </AnimatePresence>
 
@@ -759,9 +875,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
           >
             <h2 className="text-2xl font-bold text-center mb-8">Development Projects</h2>
             <div className="max-w-6xl mx-auto">
-              {developerProjects.length > 0 ? (
+              {developmentProjects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {developerProjects.map((project, index) => (
+                  {developmentProjects.map((project, index) => (
                   <motion.div
                     key={project.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -775,7 +891,7 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                       {project.thumbnail ? (
                         <img 
                           src={project.thumbnail} 
-                          alt={project.title}
+                          alt={project.projectName}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             // Fallback to gradient background if image fails to load
@@ -791,9 +907,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                       {/* Overlay on hover */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                         <div className="flex space-x-3">
-                          {project.demoUrl && (
+                          {project.siteLink && (
                             <a
-                              href={project.demoUrl}
+                              href={project.siteLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 bg-white/90 hover:bg-white rounded-full text-gray-900 transition-colors"
@@ -802,9 +918,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                               <ExternalLink className="w-4 h-4" />
                             </a>
                           )}
-                          {project.githubUrl && (
+                          {project.githubLink && (
                             <a
-                              href={project.githubUrl}
+                              href={project.githubLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 bg-white/90 hover:bg-white rounded-full text-gray-900 transition-colors"
@@ -820,20 +936,41 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                     {/* Project Info */}
                     <div className="p-6">
                       <h3 className="font-bold text-lg text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {project.title}
+                        {project.projectName}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                        {project.longDescription}
+                        {project.description}
                       </p>
                       
+                      {/* Client Info */}
+                      {project.clientName && (
+                        <div className="mb-4">
+                          <div className="flex items-center space-x-2">
+                            {project.clientLogo && (
+                              <img 
+                                src={project.clientLogo} 
+                                alt={`${project.clientName} logo`}
+                                className="w-6 h-6 object-contain rounded"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <p className="text-sm text-muted-foreground">
+                              <span className="font-medium">Client:</span> {project.clientName}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Technologies */}
-                      {project.technologies && project.technologies.length > 0 && (
+                      {project.techStack && project.techStack.length > 0 && (
                         <div className="mb-4">
                           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                            Technologies
+                            Tech Stack
                           </h4>
                           <div className="flex flex-wrap gap-1">
-                            {project.technologies.slice(0, 4).map((tech, techIndex) => (
+                            {project.techStack.slice(0, 4).map((tech, techIndex) => (
                               <span
                                 key={techIndex}
                                 className="px-2 py-1 text-xs bg-muted/50 text-foreground rounded border"
@@ -841,9 +978,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                                 {tech}
                               </span>
                             ))}
-                            {project.technologies.length > 4 && (
+                            {project.techStack.length > 4 && (
                               <span className="px-2 py-1 text-xs bg-muted/50 text-muted-foreground rounded border">
-                                +{project.technologies.length - 4}
+                                +{project.techStack.length - 4}
                               </span>
                             )}
                           </div>
@@ -852,9 +989,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
 
                       {/* Links */}
                       <div className="flex space-x-3">
-                        {project.demoUrl && (
+                        {project.siteLink && (
                           <a
-                            href={project.demoUrl}
+                            href={project.siteLink}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
@@ -864,9 +1001,9 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
                             <span>Live Site</span>
                           </a>
                         )}
-                        {project.githubUrl && (
+                        {project.githubLink && (
                           <a
-                            href={project.githubUrl}
+                            href={project.githubLink}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center space-x-1 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
@@ -896,35 +1033,21 @@ export function ShowcaseClient({ portfolioProjects }: ShowcaseClientProps) {
           </motion.div>
         )}
 
-
-
-        {/* Call to Action */}
+        {/* Subtle Contact Link */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-center mt-16 py-12 border-t border-border"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="text-center mt-12 pt-8 border-t border-border/50"
         >
-          <h3 className="text-2xl font-bold mb-4">Let's Work Together</h3>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Interested in collaborating? I'm always open to discussing new projects, 
-            creative ideas, or opportunities to bring your vision to life.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/hire-me"
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Hire Me
-            </Link>
-            <a
-              href="mailto:hello@farhanoic.me"
-              className="px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors"
-            >
-              Get In Touch
-            </a>
-          </div>
+          <a
+            href="/hire-me#contact"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+          >
+            Like what you see? Let's work together →
+          </a>
         </motion.div>
+
       </div>
 
       {/* Project Modal */}

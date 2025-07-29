@@ -375,182 +375,6 @@ export const servicesCatalogQuery = groq`
   }
 `;
 
-// Portfolio Queries
-
-// Query to fetch all portfolio categories
-export const portfolioCategoriesQuery = groq`
-  *[_type == "portfolioCategory"] | order(order asc) {
-    _id,
-    name,
-    "slug": slug.current,
-    order
-  }
-`;
-
-// Query to fetch all portfolio projects
-export const portfolioProjectsQuery = groq`
-  *[_type == "portfolioProject"] | order(_createdAt desc) {
-    _id,
-    title,
-    "slug": slug.current,
-    longDescription,
-    thumbnail,
-    videoUrl,
-    demoUrl,
-    githubUrl,
-    client,
-    technologies[],
-    featured,
-    order,
-    category->{
-      _id,
-      name,
-      "slug": slug.current
-    },
-    workType,
-    _createdAt,
-    _updatedAt
-  }
-`;
-
-// Query to fetch portfolio projects by category
-export const portfolioProjectsByCategoryQuery = groq`
-  *[_type == "portfolioProject" && category->slug.current == $categorySlug] | order(order asc, _createdAt desc) {
-    _id,
-    title,
-    "slug": slug.current,
-    longDescription,
-    thumbnail,
-    videoUrl,
-    demoUrl,
-    githubUrl,
-    client,
-    technologies[],
-    featured,
-    order,
-    category->{
-      _id,
-      name,
-      "slug": slug.current
-    },
-    workType,
-    _createdAt,
-    _updatedAt
-  }
-`;
-
-// Query to fetch featured portfolio projects
-export const featuredPortfolioProjectsQuery = groq`
-  *[_type == "portfolioProject" && featured == true] | order(_createdAt desc) {
-    _id,
-    title,
-    "slug": slug.current,
-    longDescription,
-    thumbnail,
-    videoUrl,
-    demoUrl,
-    githubUrl,
-    client,
-    technologies[],
-    featured,
-    order,
-    category->{
-      _id,
-      name,
-      "slug": slug.current
-    },
-    workType,
-    _createdAt,
-    _updatedAt
-  }
-`;
-
-// Query to fetch a single portfolio project by ID
-export const portfolioProjectByIdQuery = groq`
-  *[_type == "portfolioProject" && _id == $projectId][0] {
-    _id,
-    title,
-    "slug": slug.current,
-    longDescription,
-    thumbnail,
-    videoUrl,
-    demoUrl,
-    githubUrl,
-    client,
-    technologies[],
-    featured,
-    order,
-    category->{
-      _id,
-      name,
-      "slug": slug.current
-    },
-    workType,
-    _createdAt,
-    _updatedAt
-  }
-`;
-
-// Query to fetch a single portfolio project by slug
-export const portfolioProjectBySlugQuery = groq`
-  *[_type == "portfolioProject" && slug.current == $slug][0] {
-    _id,
-    title,
-    "slug": slug.current,
-    longDescription,
-    thumbnail,
-    videoUrl,
-    demoUrl,
-    githubUrl,
-    client,
-    technologies[],
-    featured,
-    order,
-    category->{
-      _id,
-      name,
-      "slug": slug.current
-    },
-    workType,
-    _createdAt,
-    _updatedAt
-  }
-`;
-
-// Combined query to fetch all portfolio data
-export const portfolioCatalogQuery = groq`
-  {
-    "categories": *[_type == "portfolioCategory"] | order(order asc) {
-      _id,
-      name,
-      "slug": slug.current,
-      order
-    },
-    "projects": *[_type == "portfolioProject"] | order(_createdAt desc) {
-      _id,
-      title,
-      "slug": slug.current,
-      longDescription,
-      thumbnail,
-      videoUrl,
-      demoUrl,
-      githubUrl,
-      client,
-      technologies[],
-      featured,
-      order,
-      category->{
-        _id,
-        name,
-        "slug": slug.current
-      },
-      workType,
-      _createdAt,
-      _updatedAt
-    }
-  }
-`;
-
 // =============================================================================
 // RESOURCE QUERIES
 // =============================================================================
@@ -657,6 +481,252 @@ export const resourcesCatalogQuery = groq`
         "slug": slug.current
       },
       tags[],
+      featured,
+      order,
+      _createdAt,
+      _updatedAt
+    }
+  }
+`;
+
+// =============================================================================
+// DEVELOPMENT PROJECT QUERIES
+// =============================================================================
+
+// Query to fetch all development projects
+export const developmentProjectsQuery = groq`
+  *[_type == "developmentProject"] | order(featured desc, _createdAt desc) {
+    _id,
+    projectName,
+    "slug": slug.current,
+    description,
+    thumbnail,
+    clientName,
+    clientLogo,
+    techStack[],
+    githubLink,
+    siteLink,
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch featured development projects
+export const featuredDevelopmentProjectsQuery = groq`
+  *[_type == "developmentProject" && featured == true] | order(order asc, _createdAt desc) {
+    _id,
+    projectName,
+    "slug": slug.current,
+    description,
+    thumbnail,
+    clientName,
+    clientLogo,
+    techStack[],
+    githubLink,
+    siteLink,
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch a single development project by ID
+export const developmentProjectByIdQuery = groq`
+  *[_type == "developmentProject" && _id == $projectId][0] {
+    _id,
+    projectName,
+    "slug": slug.current,
+    description,
+    thumbnail,
+    clientName,
+    clientLogo,
+    techStack[],
+    githubLink,
+    siteLink,
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch a single development project by slug
+export const developmentProjectBySlugQuery = groq`
+  *[_type == "developmentProject" && slug.current == $slug][0] {
+    _id,
+    projectName,
+    "slug": slug.current,
+    description,
+    thumbnail,
+    clientName,
+    clientLogo,
+    techStack[],
+    githubLink,
+    siteLink,
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// =============================================================================
+// CREATIVE PROJECT QUERIES
+// =============================================================================
+
+// Query to fetch all creative projects
+export const creativeProjectsQuery = groq`
+  *[_type == "creativeProject"] | order(featured desc, _createdAt desc) {
+    _id,
+    name,
+    "slug": slug.current,
+    thumbnail,
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo, clientLogo),
+    kind,
+    durationType,
+    videoLink,
+    softwareTools[],
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch creative projects by kind
+export const creativeProjectsByKindQuery = groq`
+  *[_type == "creativeProject" && kind == $kind] | order(featured desc, _createdAt desc) {
+    _id,
+    name,
+    "slug": slug.current,
+    thumbnail,
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo, clientLogo),
+    kind,
+    durationType,
+    videoLink,
+    softwareTools[],
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch creative projects by duration type
+export const creativeProjectsByDurationQuery = groq`
+  *[_type == "creativeProject" && durationType == $durationType] | order(featured desc, _createdAt desc) {
+    _id,
+    name,
+    "slug": slug.current,
+    thumbnail,
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo, clientLogo),
+    kind,
+    durationType,
+    videoLink,
+    softwareTools[],
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch featured creative projects
+export const featuredCreativeProjectsQuery = groq`
+  *[_type == "creativeProject" && featured == true] | order(order asc, _createdAt desc) {
+    _id,
+    name,
+    "slug": slug.current,
+    thumbnail,
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo, clientLogo),
+    kind,
+    durationType,
+    videoLink,
+    softwareTools[],
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch a single creative project by ID
+export const creativeProjectByIdQuery = groq`
+  *[_type == "creativeProject" && _id == $projectId][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    thumbnail,
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo, clientLogo),
+    kind,
+    durationType,
+    videoLink,
+    softwareTools[],
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Query to fetch a single creative project by slug
+export const creativeProjectBySlugQuery = groq`
+  *[_type == "creativeProject" && slug.current == $slug][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    thumbnail,
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo, clientLogo),
+    kind,
+    durationType,
+    videoLink,
+    softwareTools[],
+    featured,
+    order,
+    _createdAt,
+    _updatedAt
+  }
+`;
+
+// Combined query to fetch all project data
+export const projectsCatalogQuery = groq`
+  {
+    "developmentProjects": *[_type == "developmentProject"] | order(featured desc, _createdAt desc) {
+      _id,
+      projectName,
+      "slug": slug.current,
+      description,
+      thumbnail,
+      clientName,
+      clientLogo,
+      techStack[],
+      githubLink,
+      siteLink,
+      featured,
+      order,
+      _createdAt,
+      _updatedAt
+    },
+    "creativeProjects": *[_type == "creativeProject"] | order(featured desc, _createdAt desc) {
+      _id,
+      name,
+      "slug": slug.current,
+      thumbnail,
+      "clientName": coalesce(client->name, clientName),
+      "clientLogo": coalesce(client->logo, clientLogo),
+      kind,
+      durationType,
+      videoLink,
+      softwareTools[],
       featured,
       order,
       _createdAt,

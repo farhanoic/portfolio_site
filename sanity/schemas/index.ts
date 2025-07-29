@@ -2,8 +2,9 @@ import { type SchemaTypeDefinition } from 'sanity'
 import { serviceCategory } from './serviceCategory'
 import { serviceFilter } from './serviceFilter'
 import { service } from './service'
-import { portfolioCategory } from './portfolioCategory'
-import { portfolioProject } from './portfolioProject'
+import { developmentProject } from './developmentProject'
+import { creativeProject } from './creativeProject'
+import { client } from './client'
 import { blogCategory } from './blogCategory'
 import { blogPost } from './blogPost'
 import { resourceCategory } from './resourceCategory'
@@ -15,9 +16,10 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     serviceCategory, 
     serviceFilter, 
     service,
-    // Portfolio schemas
-    portfolioCategory,
-    portfolioProject,
+    // Project schemas
+    developmentProject,
+    creativeProject,
+    client,
     // Blog schemas
     blogCategory,
     blogPost,
