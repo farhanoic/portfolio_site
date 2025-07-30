@@ -221,7 +221,7 @@ export default function ResourcesClient({ categories, resources }: ResourcesClie
   }, [filteredResources]);
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

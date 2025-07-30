@@ -11,7 +11,7 @@ export default function ServiceCard({ item, onClick }: ServiceCardProps) {
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => onClick(item)}
-      className="dashboard-card p-6 space-y-4 cursor-pointer group hover:border-primary transition-all duration-300"
+      className="dashboard-card p-4 sm:p-6 space-y-3 sm:space-y-4 cursor-pointer group hover:border-primary transition-all duration-300"
     >
       {/* Thumbnail */}
       <div className="aspect-video bg-muted rounded border border-border overflow-hidden">
@@ -25,22 +25,22 @@ export default function ServiceCard({ item, onClick }: ServiceCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+          <h3 className="text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
             {item.title}
           </h3>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             {item.filter.name}
           </span>
         </div>
         
         {/* Price */}
-        <span className="text-sm font-medium text-primary">
+        <span className="text-xs sm:text-sm font-medium text-primary">
           {item.price}
         </span>
       </div>
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
         {item.description}
       </p>
 

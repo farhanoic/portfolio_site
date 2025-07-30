@@ -28,7 +28,7 @@ export default function CompactPortfolioCard({ project, onClick }: CompactPortfo
   return (
     <motion.div
       whileHover={{ y: -3, scale: 1.02 }}
-      className="w-48 flex-shrink-0 dashboard-card overflow-hidden cursor-pointer group"
+      className="w-40 sm:w-44 md:w-48 flex-shrink-0 dashboard-card overflow-hidden cursor-pointer group"
       onClick={onClick}
     >
       {/* Compact Thumbnail */}
@@ -101,9 +101,9 @@ export default function CompactPortfolioCard({ project, onClick }: CompactPortfo
       </div>
 
       {/* Compact Content */}
-      <div className="p-3 space-y-2">
+      <div className="p-2 sm:p-3 space-y-2">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
             {project.title}
           </h3>
         </div>

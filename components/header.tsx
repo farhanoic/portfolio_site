@@ -19,10 +19,10 @@ export function Header() {
 
   return (
     <header className="dashboard-header">
-      <div className="container mx-auto px-6">
-        <nav className="flex items-center justify-between h-16">
+      <div className="container mx-auto px-4 sm:px-6">
+        <nav className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo/Brand */}
-          <Link href="/" className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+          <Link href="/" className="text-base sm:text-lg font-medium text-foreground hover:text-primary transition-colors min-h-[44px] flex items-center">
             Farhan Azhar
           </Link>
 
@@ -56,7 +56,7 @@ export function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="md:hidden p-3 text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-muted/50"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -95,14 +95,14 @@ export function Header() {
               transition={{ duration: 0.2 }}
               className="md:hidden border-t border-border"
             >
-              <div className="py-4 space-y-2">
+              <div className="py-4 space-y-1">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
-                      className={`block px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                      className={`block px-4 py-3 text-base font-medium transition-colors duration-200 min-h-[44px] rounded-md mx-2 ${
                         isActive
                           ? "text-foreground bg-muted"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

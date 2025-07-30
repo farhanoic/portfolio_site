@@ -12,16 +12,16 @@ interface HireMeClientProps {
 
 export default function HireMeClient({ categories, filters, services }: HireMeClientProps) {
   return (
-    <main className="min-h-screen pt-16 py-12">
-      <div className="container mx-auto px-6 space-y-16">
+    <main className="min-h-screen pt-14 sm:pt-16 py-8 sm:py-12">
+      <div className="container mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-6 max-w-4xl mx-auto"
+          className="text-center space-y-4 sm:space-y-6 max-w-4xl mx-auto"
         >
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight">
             Let's Work{" "}
             <span className="text-primary">Together</span>
           </h1>

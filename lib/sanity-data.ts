@@ -28,7 +28,9 @@ import {
   resourcesQuery,
   resourcesByCategoryQuery,
   featuredResourcesQuery,
-  resourcesCatalogQuery
+  resourcesCatalogQuery,
+  creativeClientsQuery,
+  creativeClientsWithProjectsQuery
 } from './sanity-queries';
 import type { ServiceCategory, ServiceFilter, ServiceItem } from '@/types/services';
 import type { BlogPost, BlogCategory, BlogPostsResponse, BlogSearchParams } from '@/types/blog';
@@ -41,6 +43,7 @@ import type {
   CreativeProject,
   ProjectCatalogData 
 } from '@/types/projects';
+import type { CreativeClient, CreativeClientWithProjects } from '@/types/clients';
 import { urlFor } from '@/lib/sanity';
 
 // Use live client in development for real-time updates
@@ -594,5 +597,98 @@ export async function getResourcesCatalogData(): Promise<ResourcesCatalogData> {
       categories: [],
       resources: []
     };
+  }
+}
+
+// =============================================================================
+// CLIENT SHOWCASE DATA FUNCTIONS
+// =============================================================================
+
+// Fetch unique clients from creative projects for the client showcase
+export async function getCreativeClients(): Promise<CreativeClient[]> {
+  try {
+    const projects = await activeClient.fetch(creativeClientsQuery);
+    
+    // Handle uniqueness and project counting on the client side
+    const clientMap = new Map<string, CreativeClient>();
+    
+    projects?.forEach((project: any) => {
+      const clientName = project.clientName;
+      
+      if (clientMap.has(clientName)) {
+        // Increment project count for existing client
+        const existingClient = clientMap.get(clientName)!;
+        existingClient.projectCount += 1;
+        
+        // Update featured status if this project is featured
+        if (project.featured && !existingClient.featured) {
+          existingClient.featured = project.featured;
+        }
+        
+        // Use the most recent creation date
+        if (new Date(project._createdAt) > new Date(existingClient._createdAt)) {
+          existingClient._createdAt = project._createdAt;
+        }
+      } else {
+        // Add new client with initial project count of 1
+        clientMap.set(clientName, {
+          clientName: project.clientName,
+          clientLogo: project.clientLogo,
+          clientSlug: project.clientSlug,
+          projectCount: 1, // Start with 1 since this is the first project for this client
+          featured: project.featured || false,
+          industry: project.industry,
+          website: project.website,
+          _createdAt: project._createdAt
+        });
+      }
+    });
+    
+    // Convert map to array and sort
+    const uniqueClients = Array.from(clientMap.values());
+    
+    // Sort by featured status, project count, and creation date
+    const sortedClients = uniqueClients.sort((a: CreativeClient, b: CreativeClient) => {
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      if (a.projectCount !== b.projectCount) return b.projectCount - a.projectCount;
+      return new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime();
+    });
+    
+    console.log('🎨 Creative clients fetched:', sortedClients?.length || 0);
+    console.log('🎨 Client project counts:', sortedClients.map(c => `${c.clientName}: ${c.projectCount}`));
+    return sortedClients;
+  } catch (error) {
+    console.error('❌ Error fetching creative clients:', error);
+    return [];
+  }
+}
+
+// Fetch clients with their detailed project information
+export async function getCreativeClientsWithProjects(): Promise<CreativeClientWithProjects[]> {
+  try {
+    const clients = await activeClient.fetch(creativeClientsWithProjectsQuery);
+    
+    // Handle uniqueness on the client side since GROQ unique() has syntax issues
+    const uniqueClients = clients?.reduce((acc: CreativeClientWithProjects[], current: CreativeClientWithProjects) => {
+      const existingClient = acc.find(client => client.clientName === current.clientName);
+      if (!existingClient) {
+        acc.push(current);
+      }
+      return acc;
+    }, []) || [];
+    
+    // Sort by featured project count, total project count, and creation date
+    const sortedClients = uniqueClients.sort((a: CreativeClientWithProjects, b: CreativeClientWithProjects) => {
+      if (a.featuredProjectCount !== b.featuredProjectCount) return b.featuredProjectCount - a.featuredProjectCount;
+      if (a.projectCount !== b.projectCount) return b.projectCount - a.projectCount;
+      return new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime();
+    });
+    
+    console.log('🎨 Creative clients with projects fetched:', sortedClients?.length || 0);
+    return sortedClients;
+  } catch (error) {
+    console.error('❌ Error fetching creative clients with projects:', error);
+    return [];
   }
 }

@@ -69,9 +69,9 @@ export function BlogCard({ post, index = 0 }: BlogCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
           {/* Meta Information */}
-          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
               <span>{formatDate(post.publishedAt)}</span>
@@ -85,12 +85,12 @@ export function BlogCard({ post, index = 0 }: BlogCardProps) {
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
             {post.title}
           </h2>
 
           {/* Excerpt */}
-          <p className="text-muted-foreground leading-relaxed line-clamp-3">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
             {post.excerpt}
           </p>
 

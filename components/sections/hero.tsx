@@ -9,12 +9,15 @@ import CompactPortfolioCard from "@/components/portfolio/CompactPortfolioCard";
 import ProjectModal from "@/components/portfolio/ProjectModal";
 import YouTubeStats from "@/components/ui/YouTubeStats";
 import { urlFor } from "@/lib/sanity";
+import { clientShowcaseConfig } from "@/lib/client-data";
 import type { DevelopmentProject, CreativeProject } from "@/types/projects";
+import type { CreativeClient } from "@/types/clients";
 
 // Hero component props interface
 interface HeroProps {
   developmentProjects?: DevelopmentProject[];
   creativeProjects?: CreativeProject[];
+  creativeClients?: CreativeClient[];
 }
 
 // Custom hook for typing effect
@@ -319,6 +322,330 @@ function TerminalFooter({ animationDelay = 0 }: { animationDelay?: number }) {
   );
 }
 
+// Featured Creative Projects component showing landscape and vertical videos
+function FeaturedCreativeProjects({ projects = [], animationDelay = 0 }: { projects?: CreativeProject[]; animationDelay?: number }) {
+  // Debug logging
+  console.log('🎬 FeaturedCreativeProjects received projects:', projects.length);
+  console.log('🎬 Projects data:', projects.map(p => ({ name: p.name, featured: p.featured, kind: p.kind })));
+
+  // Filter and separate featured projects by kind
+  const featuredProjects = projects.filter(project => project.featured);
+  console.log('🎬 Featured projects found:', featuredProjects.length);
+  
+  // If no featured projects, show recent projects instead
+  const projectsToShow = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 7);
+  const landscapeProjects = projectsToShow.filter(project => project.kind === 'Landscape').slice(0, 3);
+  const verticalProjects = projectsToShow.filter(project => project.kind === 'Reels').slice(0, 4);
+
+  console.log('🎬 Landscape projects to show:', landscapeProjects.length);
+  console.log('🎬 Vertical projects to show:', verticalProjects.length);
+
+  // Don't render if no projects at all
+  if (projectsToShow.length === 0) {
+    return null;
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: animationDelay }}
+      className="w-full space-y-8"
+    >
+      {/* Landscape Videos Section */}
+      {landscapeProjects.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: animationDelay + 0.2 }}
+          className="space-y-6"
+        >
+          <div className="text-center">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+              {featuredProjects.length > 0 ? 'Featured ' : 'Recent '}Landscape Videos ({landscapeProjects.length})
+            </h3>
+            <div className="w-20 h-px bg-purple-500/30 mx-auto"></div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {landscapeProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: animationDelay + 0.4 + index * 0.1,
+                  ease: "easeOut"
+                }}
+                className="dashboard-card overflow-hidden bg-purple-500/5 border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 group cursor-pointer"
+                whileHover={{ y: -4 }}
+              >
+                {/* Project Thumbnail */}
+                <div className="relative aspect-video bg-gradient-to-br from-purple-500/10 to-purple-600/10 overflow-hidden">
+                  {project.thumbnail ? (
+                    <img 
+                      src={project.thumbnail} 
+                      alt={project.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Grid className="w-8 h-8 text-purple-400/50" />
+                    </div>
+                  )}
+                  
+                  {/* Overlay with play button */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-900 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Project Info */}
+                <div className="p-4 space-y-3">
+                  <h4 className="font-semibold text-foreground group-hover:text-purple-400 transition-colors text-sm sm:text-base line-clamp-1">
+                    {project.name}
+                  </h4>
+                  
+                  {/* Client info */}
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                    <div className="w-4 h-4 bg-purple-500/20 rounded-full flex items-center justify-center">
+                      {project.clientLogo ? (
+                        <img src={project.clientLogo} alt={project.clientName} className="w-3 h-3 rounded-full object-cover" />
+                      ) : (
+                        <span className="text-purple-400 text-xs">•</span>
+                      )}
+                    </div>
+                    <span>{project.clientName}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Vertical Videos Section */}
+      {verticalProjects.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: animationDelay + 0.4 }}
+          className="space-y-6"
+        >
+          <div className="text-center">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+              {featuredProjects.length > 0 ? 'Featured ' : 'Recent '}Vertical Videos - Reels/Shorts ({verticalProjects.length})
+            </h3>
+            <div className="w-20 h-px bg-purple-500/30 mx-auto"></div>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+            {verticalProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: animationDelay + 0.6 + index * 0.1,
+                  ease: "easeOut"
+                }}
+                className="dashboard-card overflow-hidden bg-purple-500/5 border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 group cursor-pointer"
+                whileHover={{ y: -4 }}
+              >
+                {/* Project Thumbnail - Vertical aspect ratio */}
+                <div className="relative aspect-[9/16] bg-gradient-to-br from-purple-500/10 to-purple-600/10 overflow-hidden">
+                  {project.thumbnail ? (
+                    <img 
+                      src={project.thumbnail} 
+                      alt={project.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Grid className="w-6 h-6 text-purple-400/50" />
+                    </div>
+                  )}
+                  
+                  {/* Overlay with play button */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-0 h-0 border-l-[6px] border-l-gray-900 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-1"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Project Info */}
+                <div className="p-3 space-y-2">
+                  <h4 className="font-semibold text-foreground group-hover:text-purple-400 transition-colors text-xs sm:text-sm line-clamp-2">
+                    {project.name}
+                  </h4>
+                  
+                  {/* Client info */}
+                  <div className="flex items-center space-x-1.5 text-xs text-muted-foreground">
+                    <div className="w-3 h-3 bg-purple-500/20 rounded-full flex items-center justify-center">
+                      {project.clientLogo ? (
+                        <img src={project.clientLogo} alt={project.clientName} className="w-2 h-2 rounded-full object-cover" />
+                      ) : (
+                        <span className="text-purple-400 text-xs">•</span>
+                      )}
+                    </div>
+                    <span className="truncate">{project.clientName}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+
+// Client Showcase component with cycling animation
+function ClientShowcase({ clients = [], animationDelay = 0 }: { clients?: CreativeClient[]; animationDelay?: number }) {
+  const [currentSet, setCurrentSet] = useState(0);
+
+  // Create client display sets from real Sanity data
+  const clientSets = clients.length > 0 
+    ? [clients.slice(0, 4), clients.slice(4, 8), clients.slice(8, 12), clients.slice(12, 16)].filter(set => set.length > 0)
+    : [];
+
+  // Cycle through client sets using configurable duration
+  useEffect(() => {
+    if (clientSets.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentSet((prev) => (prev + 1) % clientSets.length);
+      }, clientShowcaseConfig.cycleDuration);
+      return () => clearInterval(interval);
+    }
+  }, [clientSets.length]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: animationDelay }}
+      className="space-y-4"
+    >
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: animationDelay + 0.2 }}
+        className="text-center"
+      >
+        <h3 className="text-base sm:text-lg font-semibold text-muted-foreground mb-2">
+          {clientShowcaseConfig.headerText}
+        </h3>
+        <div className="w-16 h-px bg-purple-500/30 mx-auto"></div>
+      </motion.div>
+
+      {/* Animated Client Grid or Empty State */}
+      <div className="relative min-h-[120px] sm:min-h-[100px] flex items-center justify-center">
+        {clientSets.length > 0 ? (
+          <>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentSet}
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -30, scale: 0.9 }}
+                transition={{ 
+                  duration: clientShowcaseConfig.animationDuration,
+                  ease: "easeInOut",
+                  staggerChildren: 0.1
+                }}
+                className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 w-full max-w-4xl"
+              >
+                {clientSets[currentSet]?.map((client, index) => (
+                  <motion.div
+                    key={`${currentSet}-${client.clientSlug}-${index}`}
+                    initial={{ opacity: 0, scale: 0.8, rotateX: -15 }}
+                    animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+                    transition={{ 
+                      duration: 0.6, 
+                      delay: index * clientShowcaseConfig.staggerDelay,
+                      ease: "easeOut"
+                    }}
+                    className="relative group"
+                  >
+                    {/* Client Card */}
+                    <div className="dashboard-card p-3 sm:p-4 text-center bg-purple-500/5 border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-purple-500/20">
+                      <div className="space-y-2">
+                        {/* Client Logo */}
+                        {client.clientLogo && (
+                          <div className="w-8 h-8 mx-auto mb-2 relative">
+                            <img 
+                              src={client.clientLogo} 
+                              alt={`${client.clientName} logo`}
+                              className="w-full h-full object-contain rounded"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Client Name */}
+                        <h4 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-purple-400 transition-colors">
+                          {client.clientName}
+                        </h4>
+                        
+                        {/* Subtle accent line */}
+                        <div className="w-8 h-px bg-purple-500/30 mx-auto group-hover:bg-purple-500/60 transition-colors"></div>
+                        
+                        {/* Project count */}
+                        <span className="text-xs text-muted-foreground group-hover:text-purple-300 transition-colors">
+                          {client.projectCount} {client.projectCount === 1 ? 'project' : 'projects'}
+                        </span>
+                      </div>
+
+                      {/* Hover glow effect */}
+                      <div className="absolute inset-0 bg-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                    </div>
+
+                    {/* Floating particles effect on hover */}
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-500/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300"></div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Cycle indicators */}
+            {clientSets.length > 1 && (
+              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {clientSets.map((_, index) => (
+                  <motion.div
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                      index === currentSet 
+                        ? 'bg-purple-500 scale-125' 
+                        : 'bg-purple-500/30 hover:bg-purple-500/50'
+                    }`}
+                    whileHover={{ scale: 1.2 }}
+                    onClick={() => setCurrentSet(index)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          /* Empty State */
+          <div className="dashboard-card p-6 text-center bg-purple-500/5 border-purple-500/20 w-full max-w-md">
+            <div className="space-y-3">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto">
+                <Grid className="w-6 h-6 text-purple-400" />
+              </div>
+              <h4 className="text-sm font-semibold text-foreground">No Clients Yet</h4>
+              <p className="text-xs text-muted-foreground">Client showcase will appear here once projects are added to the CMS.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
 // Professional Timeline component matching showcase page design
 function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?: number }) {
@@ -329,7 +656,7 @@ function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?
       transition={{ duration: 0.8, delay: animationDelay }}
       className="w-full max-w-4xl mx-auto"
     >
-      <h3 className="text-2xl font-bold text-center mb-8">Professional Journey</h3>
+      <h3 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8">Professional Journey</h3>
       <div className="relative">
         {/* Timeline line */}
         <div className="absolute left-4 md:left-1/2 md:-ml-0.5 top-0 bottom-0 w-0.5 bg-border"></div>
@@ -340,7 +667,7 @@ function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: animationDelay + 0.5 + index * 0.1 }}
-            className={`relative flex items-center mb-8 ${
+            className={`relative flex items-center mb-6 sm:mb-8 ${
               index % 2 === 0 ? 'md:flex-row-reverse' : ''
             }`}
           >
@@ -351,7 +678,7 @@ function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?
             <div className={`ml-12 md:ml-0 md:w-1/2 ${
               index % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8'
             }`}>
-              <div className="dashboard-card p-6">
+              <div className="dashboard-card p-4 sm:p-6">
                 <div className="flex items-center space-x-2 mb-2">
                   <span className={`px-2 py-1 text-xs rounded ${
                     item.type === 'ongoing' 
@@ -368,9 +695,9 @@ function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?
                     </span>
                   )}
                 </div>
-                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                <p className="text-sm text-primary font-medium mb-2">{item.company}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-primary font-medium mb-2">{item.company}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
               </div>
             </div>
           </motion.div>
@@ -380,12 +707,15 @@ function Timeline({ items, animationDelay = 0 }: { items: any[]; animationDelay?
   );
 }
 
-export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroProps) {
+export function Hero({ developmentProjects = [], creativeProjects = [], creativeClients = [] }: HeroProps) {
   const [selectedProject, setSelectedProject] = useState<DevelopmentProject | CreativeProject | null>(null);
 
   // Debug logging
   useEffect(() => {
     console.log("Hero component mounted - animations should start");
+    console.log("🎯 Hero received developmentProjects:", developmentProjects.length);
+    console.log("🎯 Hero received creativeProjects:", creativeProjects.length);
+    console.log("🎯 Hero received creativeClients:", creativeClients.length);
   }, []);
 
   // Sort projects by featured status and creation date
@@ -603,13 +933,13 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
 
   return (
     <>
-    <section className="min-h-screen pt-16 flex items-center justify-center py-8">
-      <div className="container mx-auto px-6">
+    <section className="min-h-screen pt-14 sm:pt-16 flex items-center justify-center py-6 sm:py-8">
+      <div className="container mx-auto px-4 sm:px-6">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center justify-center text-center space-y-8 md:space-y-12 max-w-4xl mx-auto"
+          className="flex flex-col items-center justify-center text-center space-y-6 sm:space-y-8 md:space-y-12 max-w-4xl mx-auto"
           onAnimationStart={() => console.log("Container animation started")}
           onAnimationComplete={() => console.log("Container animation completed")}
         >
@@ -622,7 +952,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               {/* Photo Container */}
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 2 }}
-                className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-primary/20 overflow-hidden shadow-lg bg-gradient-to-br from-primary/10 to-primary/30"
+                className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full border-2 border-primary/20 overflow-hidden shadow-lg bg-gradient-to-br from-primary/10 to-primary/30"
               >
                 {/* Portfolio Image */}
                 <Image
@@ -657,7 +987,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
             className="text-center space-y-3"
           >
             {/* Horizontal Name */}
-            <motion.h1 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+            <motion.h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight">
               {/* Farhan - letter by letter */}
               <motion.span
                 initial="hidden"
@@ -700,7 +1030,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
             {/* Typing subtitle */}
             <motion.p
               variants={subtitleVariants}
-              className="text-base md:text-lg text-muted-foreground"
+              className="text-sm sm:text-base md:text-lg text-muted-foreground"
               onAnimationComplete={() => console.log("Subtitle animation completed")}
             >
               You can call me a <TypingText roles={roles} delay={800} />
@@ -718,13 +1048,13 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
             <motion.a
               href="mailto:hello@farhanoic.me"
               whileHover={{ scale: 1.05 }}
-              className="inline-block text-sm md:text-base text-primary font-medium hover:underline"
+              className="inline-block text-xs sm:text-sm md:text-base text-primary font-medium hover:underline min-h-[44px] flex items-center px-2 py-2 rounded-md hover:bg-primary/10"
             >
               hello@farhanoic.me
             </motion.a>
 
             {/* Social Links */}
-            <div className="flex justify-center space-x-6 text-muted-foreground">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-muted-foreground">
               {socialLinks.map((social, index) => (
                 <motion.a
                   key={social.name}
@@ -740,7 +1070,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
                     y: -2
                   }}
                   whileTap={{ scale: 0.95 }}
-                  className="relative hover:text-primary transition-all duration-300 text-xs md:text-sm px-2 py-1 rounded-md hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
+                  className="relative hover:text-primary transition-all duration-300 text-xs sm:text-sm px-3 py-2 rounded-md hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   {social.name}
                 </motion.a>
@@ -753,13 +1083,13 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.4 }}
-            className="space-y-3 max-w-2xl"
+            className="space-y-3 max-w-2xl px-2 sm:px-0"
           >
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
               I create modern digital experiences with clean code and thoughtful design. 
               Passionate about building products that are both beautiful and functional.
             </p>
-            <p className="text-xs md:text-sm text-muted-foreground/80">
+            <p className="text-xs sm:text-sm text-muted-foreground/80">
               5+ years experience turning ideas into reality.
             </p>
           </motion.div>
@@ -769,14 +1099,14 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.6 }}
-            className="w-full max-w-6xl space-y-8"
+            className="w-full max-w-6xl space-y-6 sm:space-y-8"
           >
             {/* Content Creator Title */}
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.8 }}
-              className="text-3xl md:text-4xl font-bold text-center text-foreground"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
             >
               Content Creator
             </motion.h2>
@@ -786,7 +1116,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 2.0 }}
-              className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
+              className="relative overflow-hidden py-4 sm:py-6 bg-muted/50 rounded-xl sm:rounded-2xl border border-border"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
               <motion.div
@@ -809,7 +1139,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
                     key={index}
                     className="flex items-center px-5 py-3 bg-primary/10 rounded-full border border-primary/30 shadow-sm hover:bg-primary/20 transition-colors"
                   >
-                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
                       {skill}
                     </span>
                   </div>
@@ -861,7 +1191,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 2.8 }}
-              className="text-3xl md:text-4xl font-bold text-center text-foreground"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
             >
               Developer
             </motion.h2>
@@ -871,7 +1201,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 3.0 }}
-              className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
+              className="relative overflow-hidden py-4 sm:py-6 bg-muted/50 rounded-xl sm:rounded-2xl border border-border"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
               <motion.div
@@ -892,9 +1222,9 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
                 {['JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker', 'JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker', 'JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker'].map((skill, index) => (
                   <div
                     key={index}
-                    className="flex items-center px-5 py-3 bg-green-500/10 rounded-full border border-green-500/30 shadow-sm hover:bg-green-500/20 transition-colors"
+                    className="flex items-center px-3 py-2 sm:px-5 sm:py-3 bg-green-500/10 rounded-full border border-green-500/30 shadow-sm hover:bg-green-500/20 transition-colors"
                   >
-                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
                       {skill}
                     </span>
                   </div>
@@ -1054,9 +1384,9 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
             >
               <Link
                 href="/showcase?tab=Developer"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg transition-all duration-300 hover:scale-105 group"
+                className="inline-flex items-center space-x-2 px-4 py-3 sm:px-6 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg transition-all duration-300 hover:scale-105 group min-h-[44px]"
               >
-                <span className="text-sm font-semibold">View Full Developer Portfolio</span>
+                <span className="text-xs sm:text-sm font-semibold">View Full Developer Portfolio</span>
                 <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </motion.div>
@@ -1074,7 +1404,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 3.4 }}
-              className="text-3xl md:text-4xl font-bold text-center text-foreground"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
             >
               Design/Video Editor
             </motion.h2>
@@ -1084,7 +1414,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 3.6 }}
-              className="relative overflow-hidden py-6 bg-muted/50 rounded-2xl border border-border"
+              className="relative overflow-hidden py-4 sm:py-6 bg-muted/50 rounded-xl sm:rounded-2xl border border-border"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
               <motion.div
@@ -1105,9 +1435,9 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
                 {['Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD', 'Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD', 'Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD'].map((skill, index) => (
                   <div
                     key={index}
-                    className="flex items-center px-5 py-3 bg-purple-500/10 rounded-full border border-purple-500/30 shadow-sm hover:bg-purple-500/20 transition-colors"
+                    className="flex items-center px-3 py-2 sm:px-5 sm:py-3 bg-purple-500/10 rounded-full border border-purple-500/30 shadow-sm hover:bg-purple-500/20 transition-colors"
                   >
-                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
                       {skill}
                     </span>
                   </div>
@@ -1115,18 +1445,24 @@ export function Hero({ developmentProjects = [], creativeProjects = [] }: HeroPr
               </motion.div>
             </motion.div>
 
+            {/* Featured Creative Projects */}
+            <FeaturedCreativeProjects projects={creativeProjects} animationDelay={3.6} />
+
+            {/* Client Showcase */}
+            <ClientShowcase clients={creativeClients} animationDelay={3.8} />
+
             {/* View Full Creative Portfolio Link */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 3.8 }}
+              transition={{ duration: 0.6, delay: 4.0 }}
               className="text-center"
             >
               <Link
                 href="/showcase?tab=Editor"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg transition-all duration-300 hover:scale-105 group"
+                className="inline-flex items-center space-x-2 px-4 py-3 sm:px-6 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg transition-all duration-300 hover:scale-105 group min-h-[44px]"
               >
-                <span className="text-sm font-semibold">View Full Creative Portfolio</span>
+                <span className="text-xs sm:text-sm font-semibold">View Full Creative Portfolio</span>
                 <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </motion.div>

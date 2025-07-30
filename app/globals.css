@@ -193,6 +193,46 @@
     letter-spacing: var(--tracking-normal);
   }
 
+  /* Mobile-specific optimizations */
+  @media (max-width: 640px) {
+    body {
+      -webkit-tap-highlight-color: rgba(115, 115, 115, 0.2);
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    /* Ensure minimum touch target size */
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Prevent horizontal scroll */
+    * {
+      max-width: 100%;
+    }
+    
+    /* Optimize for mobile viewports */
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  /* Safe area adjustments for notched devices */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+    
+    .dashboard-header {
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;

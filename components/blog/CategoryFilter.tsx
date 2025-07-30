@@ -16,7 +16,7 @@ export function CategoryFilter({ categories, selectedCategory }: CategoryFilterP
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3">
+    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
       {allCategories.map((category, index) => {
         const isSelected = selectedCategory === category.slug || (!selectedCategory && category.slug === '');
         
@@ -30,7 +30,7 @@ export function CategoryFilter({ categories, selectedCategory }: CategoryFilterP
             <Link
               href={category.slug ? `/blog?category=${category.slug}` : '/blog'}
               className={`
-                relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-300
+                relative px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium rounded-full transition-all duration-300 min-h-[44px] flex items-center justify-center
                 ${isSelected 
                   ? 'text-white shadow-lg' 
                   : 'text-muted-foreground hover:text-foreground border border-border hover:border-primary/50'

@@ -734,3 +734,46 @@ export const projectsCatalogQuery = groq`
     }
   }
 `;
+
+// =============================================================================
+// CLIENT SHOWCASE QUERIES
+// =============================================================================
+
+// Query to fetch unique clients from creative projects for the client showcase
+export const creativeClientsQuery = groq`
+  *[_type == "creativeProject" && defined(coalesce(client->name, clientName))] {
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo.asset->url, clientLogo.asset->url),
+    "clientSlug": coalesce(client->slug.current, clientName),
+    "featured": featured,
+    "industry": client->industry,
+    "website": client->website,
+    _createdAt
+  } | order(featured desc, _createdAt desc)
+`;
+
+// Query to fetch clients with their project counts and latest project info
+export const creativeClientsWithProjectsQuery = groq`
+  *[_type == "creativeProject" && defined(coalesce(client->name, clientName))] {
+    "clientName": coalesce(client->name, clientName),
+    "clientLogo": coalesce(client->logo.asset->url, clientLogo.asset->url),
+    "clientSlug": coalesce(client->slug.current, clientName),
+    "industry": client->industry,
+    "website": client->website,
+    "projects": *[_type == "creativeProject" && coalesce(client->name, clientName) == ^.clientName] | order(_createdAt desc) {
+      _id,
+      name,
+      kind,
+      durationType,
+      featured,
+      _createdAt
+    },
+    "projectCount": count(*[_type == "creativeProject" && coalesce(client->name, clientName) == ^.clientName]),
+    "featuredProjectCount": count(*[_type == "creativeProject" && featured == true && coalesce(client->name, clientName) == ^.clientName]),
+    "latestProject": *[_type == "creativeProject" && coalesce(client->name, clientName) == ^.clientName] | order(_createdAt desc)[0] {
+      name,
+      _createdAt
+    },
+    _createdAt
+  } | order(featuredProjectCount desc, projectCount desc, _createdAt desc)
+`;
