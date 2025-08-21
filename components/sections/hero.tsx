@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Grid, Code, Github } from "lucide-react";
+import { ExternalLink, Grid, Code, Github, Linkedin, Twitter, Instagram, Youtube } from "lucide-react";
 import CompactPortfolioCard from "@/components/portfolio/CompactPortfolioCard";
 import ProjectModal from "@/components/portfolio/ProjectModal";
 import YouTubeStats from "@/components/ui/YouTubeStats";
@@ -323,7 +323,7 @@ function TerminalFooter({ animationDelay = 0 }: { animationDelay?: number }) {
 }
 
 // Featured Creative Projects component showing landscape and vertical videos
-function FeaturedCreativeProjects({ projects = [], animationDelay = 0 }: { projects?: CreativeProject[]; animationDelay?: number }) {
+function FeaturedCreativeProjects({ projects = [], animationDelay = 0, onProjectClick }: { projects?: CreativeProject[]; animationDelay?: number; onProjectClick?: (project: CreativeProject) => void }) {
   // Debug logging
   console.log('🎬 FeaturedCreativeProjects received projects:', projects.length);
   console.log('🎬 Projects data:', projects.map(p => ({ name: p.name, featured: p.featured, kind: p.kind })));
@@ -380,6 +380,7 @@ function FeaturedCreativeProjects({ projects = [], animationDelay = 0 }: { proje
                 }}
                 className="dashboard-card overflow-hidden bg-purple-500/5 border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 group cursor-pointer"
                 whileHover={{ y: -4 }}
+                onClick={() => onProjectClick?.(project)}
               >
                 {/* Project Thumbnail */}
                 <div className="relative aspect-video bg-gradient-to-br from-purple-500/10 to-purple-600/10 overflow-hidden">
@@ -455,6 +456,7 @@ function FeaturedCreativeProjects({ projects = [], animationDelay = 0 }: { proje
                 }}
                 className="dashboard-card overflow-hidden bg-purple-500/5 border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 group cursor-pointer"
                 whileHover={{ y: -4 }}
+                onClick={() => onProjectClick?.(project)}
               >
                 {/* Project Thumbnail - Vertical aspect ratio */}
                 <div className="relative aspect-[9/16] bg-gradient-to-br from-purple-500/10 to-purple-600/10 overflow-hidden">
@@ -924,11 +926,11 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
     }
   ];
   const socialLinks = [
-    { name: "GitHub", url: "https://github.com/farhanoic" },
-    { name: "LinkedIn", url: "https://www.linkedin.com/in/farhanoic/" },
-    { name: "X", url: "https://x.com/farhanoic" },
-    { name: "Instagram", url: "https://www.instagram.com/take2farhan/" },
-    { name: "YouTube", url: "https://www.youtube.com/@farhanoic" },
+    { name: "GitHub", url: "https://github.com/farhanoic", icon: Github },
+    { name: "LinkedIn", url: "https://www.linkedin.com/in/farhanoic/", icon: Linkedin },
+    { name: "X", url: "https://x.com/farhanoic", icon: Twitter },
+    { name: "Instagram", url: "https://www.instagram.com/take2farhan/", icon: Instagram },
+    { name: "YouTube", url: "https://www.youtube.com/@farhanoic", icon: Youtube },
   ];
 
   return (
@@ -988,6 +990,16 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
           >
             {/* Horizontal Name */}
             <motion.h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+              {/* Hey, I'm text */}
+              <motion.span
+                initial="hidden"
+                animate="visible"
+                transition={{ staggerChildren: 0.05, delayChildren: 0.1 }}
+                className="inline-block mr-3 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed font-normal"
+              >
+                Hey, I'm{" "}
+              </motion.span>
+              
               {/* Farhan - letter by letter */}
               <motion.span
                 initial="hidden"
@@ -1027,13 +1039,26 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
               </motion.span>
             </motion.h1>
 
-            {/* Typing subtitle */}
+            {/* Brief intro */}
             <motion.p
               variants={subtitleVariants}
-              className="text-sm sm:text-base md:text-lg text-muted-foreground"
+              className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto px-4 sm:px-6"
+              onAnimationComplete={() => console.log("Brief intro animation completed")}
+            >
+              I basically do a bunch of digital stuff. Video editing, design, built some web apps, and hit 500K total views{" "}
+              <br className="hidden sm:inline" />
+              on my YouTube channel.
+            </motion.p>
+
+            {/* Typing subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
+              className="text-xs sm:text-sm md:text-base text-muted-foreground"
               onAnimationComplete={() => console.log("Subtitle animation completed")}
             >
-              You can call me a <TypingText roles={roles} delay={800} />
+              Jack of all trades, master of... <TypingText roles={["getting things done!"]} delay={800} />
             </motion.p>
           </motion.div>
 
@@ -1044,140 +1069,36 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
             transition={{ duration: 0.8, delay: 1.0 }}
             className="space-y-3"
           >
-            {/* Email */}
-            <motion.a
-              href="mailto:hello@farhanoic.me"
-              whileHover={{ scale: 1.05 }}
-              className="inline-block text-xs sm:text-sm md:text-base text-primary font-medium hover:underline min-h-[44px] flex items-center px-2 py-2 rounded-md hover:bg-primary/10"
-            >
-              hello@farhanoic.me
-            </motion.a>
-
             {/* Social Links */}
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-muted-foreground">
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.4, delay: 1.2 + index * 0.05 }}
-                  whileHover={{ 
-                    scale: 1.1, 
-                    color: "var(--primary)",
-                    y: -2
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative hover:text-primary transition-all duration-300 text-xs sm:text-sm px-3 py-2 rounded-md hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                >
-                  {social.name}
-                </motion.a>
-              ))}
+              {socialLinks.map((social, index) => {
+                const IconComponent = social.icon;
+                return (
+                  <motion.a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 1.2 + index * 0.05 }}
+                    whileHover={{ 
+                      scale: 1.1, 
+                      color: "var(--primary)",
+                      y: -2
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative hover:text-primary transition-all duration-300 p-3 rounded-full hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    title={social.name}
+                  >
+                    <IconComponent className="w-5 h-5" />
+                  </motion.a>
+                );
+              })}
             </div>
           </motion.div>
 
-          {/* About */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-            className="space-y-3 max-w-2xl px-2 sm:px-0"
-          >
-            <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
-              I create modern digital experiences with clean code and thoughtful design. 
-              Passionate about building products that are both beautiful and functional.
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground/80">
-              5+ years experience turning ideas into reality.
-            </p>
-          </motion.div>
 
-          {/* Content Creator Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.6 }}
-            className="w-full max-w-6xl space-y-6 sm:space-y-8"
-          >
-            {/* Content Creator Title */}
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.8 }}
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
-            >
-              Content Creator
-            </motion.h2>
-
-            {/* Moving Skills Stripe */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2.0 }}
-              className="relative overflow-hidden py-4 sm:py-6 bg-muted/50 rounded-xl sm:rounded-2xl border border-border"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
-              <motion.div
-                className="flex space-x-6 whitespace-nowrap will-change-transform"
-                animate={{
-                  x: [0, -1920],
-                }}
-                transition={{
-                  x: {
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    duration: 25,
-                    ease: 'linear',
-                  },
-                }}
-                style={{ width: 'max-content' }}
-              >
-                {['YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration'].map((skill, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center px-5 py-3 bg-primary/10 rounded-full border border-primary/30 shadow-sm hover:bg-primary/20 transition-colors"
-                  >
-                    <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
-                      {skill}
-                    </span>
-                  </div>
-                ))}
-              </motion.div>
-            </motion.div>
-
-          </motion.div>
-
-            {/* YouTube Stats - Full Width with End-to-End Padding */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2.2 }}
-              className="w-full px-6 md:px-8 lg:px-12"
-            >
-              <YouTubeStats 
-                channelUrl="https://www.youtube.com/@farhanoic" 
-                className="bg-card/50 w-full"
-                showVideos={false}
-              />
-            </motion.div>
-
-            {/* View Full Creator Portfolio Link */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2.4 }}
-              className="text-center"
-            >
-              <Link
-                href="/showcase?tab=Creator"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg transition-all duration-300 hover:scale-105 group"
-              >
-                <span className="text-sm font-semibold">View Full Creator Portfolio</span>
-                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </motion.div>
 
           {/* Developer Section */}
           <motion.div
@@ -1193,8 +1114,18 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
               transition={{ duration: 0.6, delay: 2.8 }}
               className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
             >
-              Developer
+              Things I've built
             </motion.h2>
+
+            {/* Developer description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.9 }}
+              className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed text-center max-w-2xl mx-auto"
+            >
+              I use design thinking, AI tools, and just enough code to build things that work and solve real problems.
+            </motion.p>
 
             {/* Moving Developer Skills Stripe */}
             <motion.div
@@ -1406,8 +1337,18 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
               transition={{ duration: 0.6, delay: 3.4 }}
               className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
             >
-              Design/Video Editor
+              Visual stuff
             </motion.h2>
+
+            {/* Visual stuff description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.5 }}
+              className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed text-center max-w-2xl mx-auto"
+            >
+              From raw footage to final upload, I handle the whole visual process. Video editing, motion graphics, thumbnails, branding, whatever the project needs.
+            </motion.p>
 
             {/* Moving Creative Skills Stripe */}
             <motion.div
@@ -1446,7 +1387,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
             </motion.div>
 
             {/* Featured Creative Projects */}
-            <FeaturedCreativeProjects projects={creativeProjects} animationDelay={3.6} />
+            <FeaturedCreativeProjects projects={creativeProjects} animationDelay={3.6} onProjectClick={handleProjectClick} />
 
             {/* Client Showcase */}
             <ClientShowcase clients={creativeClients} animationDelay={3.8} />
@@ -1469,10 +1410,105 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
           </motion.div>
 
 
+          {/* Stories I've told Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 3.2 }}
+            className="w-full max-w-6xl space-y-6 sm:space-y-8"
+          >
+            {/* Stories I've told Title */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.4 }}
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-foreground"
+            >
+              Stories I've told
+            </motion.h2>
+
+            {/* Stories I've told description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.5 }}
+              className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed text-center max-w-2xl mx-auto"
+            >
+              From scripting to storytelling to figuring out what viewers want I've picked up some experience along the way. Never been the most consistent creator, but seeing comments from people who genuinely found value in my videos is pretty satisfying.
+            </motion.p>
+
+            {/* Moving Skills Stripe */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.6 }}
+              className="relative overflow-hidden py-4 sm:py-6 bg-muted/50 rounded-xl sm:rounded-2xl border border-border"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none z-10"></div>
+              <motion.div
+                className="flex space-x-6 whitespace-nowrap will-change-transform"
+                animate={{
+                  x: [0, -1920],
+                }}
+                transition={{
+                  x: {
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    duration: 25,
+                    ease: 'linear',
+                  },
+                }}
+                style={{ width: 'max-content' }}
+              >
+                {['YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration'].map((skill, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center px-5 py-3 bg-primary/10 rounded-full border border-primary/30 shadow-sm hover:bg-primary/20 transition-colors"
+                  >
+                    <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
+                      {skill}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
+            </motion.div>
+
+          </motion.div>
+
+            {/* YouTube Stats - Full Width with End-to-End Padding */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3.8 }}
+              className="w-full px-6 md:px-8 lg:px-12"
+            >
+              <YouTubeStats 
+                channelUrl="https://www.youtube.com/@farhanoic" 
+                className="bg-card/50 w-full"
+                showVideos={false}
+              />
+            </motion.div>
+
+            {/* View Full Creator Portfolio Link */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 4.0 }}
+              className="text-center"
+            >
+              <Link
+                href="/showcase?tab=Creator"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg transition-all duration-300 hover:scale-105 group"
+              >
+                <span className="text-sm font-semibold">View Full Creator Portfolio</span>
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </motion.div>
+
           {/* Work Timeline Section */}
           <Timeline 
             items={timelineItems}
-            animationDelay={3.8}
+            animationDelay={4.2}
           />
 
         </motion.div>
@@ -1485,9 +1521,36 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
         onClose={handleModalClose}
       />
     </section>
+
+    {/* Bottom exploration note */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 4.4 }}
+      className="py-8 text-center"
+    >
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="inline-flex items-center gap-3 px-4 py-3 bg-card/50 border border-border rounded-full backdrop-blur-sm">
+          {/* Live status indicator */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
+            </div>
+            <span className="text-xs text-green-400 font-medium">LIVE</span>
+          </div>
+          
+          <div className="w-px h-4 bg-border"></div>
+          
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Currently exploring the data science and AI space, always something new to figure out.
+          </p>
+        </div>
+      </div>
+    </motion.div>
     
     {/* Terminal Footer - Edge to Edge */}
-    <TerminalFooter animationDelay={4.2} />
+    <TerminalFooter animationDelay={4.6} />
     </>
   );
 }
