@@ -2,6 +2,8 @@
 
 A modern, minimalistic portfolio website built with Next.js 15, TypeScript, Tailwind CSS, Framer Motion, and Sanity CMS for content management.
 
+> Live at: [farhanoic.me](https://farhanoic.me)
+
 ## 🚀 Features
 
 - **Modern Design**: Clean, minimalistic design with dark theme
