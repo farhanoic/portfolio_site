@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -21,8 +22,15 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6">
         <nav className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo/Brand */}
-          <Link href="/" className="text-base sm:text-lg font-medium text-foreground hover:text-primary transition-colors min-h-[44px] flex items-center">
-            Farhan Azhar
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity min-h-[44px]">
+            <Image 
+              src="/images/logo.png" 
+              alt="Farhan Azhar Logo" 
+              width={32} 
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

@@ -109,24 +109,41 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
   // Developer Tech Stack
   const developerStack = {
     languages: [
-      { name: 'JavaScript', level: 'Expert' },
       { name: 'TypeScript', level: 'Expert' },
-      { name: 'Python', level: 'Intermediate' }
+      { name: 'JavaScript', level: 'Expert' },
+      { name: 'HTML', level: 'Expert' },
+      { name: 'CSS', level: 'Expert' },
+      { name: 'SQL', level: 'Expert' }
     ],
     frameworks: [
-      { name: 'React', level: 'Expert' },
       { name: 'Next.js', level: 'Expert' },
-      { name: 'Node.js', level: 'Intermediate' }
-    ],
-    tools: [
-      { name: 'Git', level: 'Expert' },
+      { name: 'React', level: 'Expert' },
       { name: 'Tailwind CSS', level: 'Expert' },
-      { name: 'VS Code', level: 'Expert' }
+      { name: 'Node.js', level: 'Expert' }
     ],
-    aiTools: [
-      { name: 'Claude Code', level: 'Expert' },
-      { name: 'GitHub Copilot', level: 'Expert' },
-      { name: 'ChatGPT', level: 'Intermediate' }
+    uiLibraries: [
+      { name: 'shadcn/ui', level: 'Expert' },
+      { name: 'Radix UI', level: 'Expert' },
+      { name: 'Framer Motion', level: 'Expert' },
+      { name: 'Recharts', level: 'Expert' }
+    ],
+    developmentTools: [
+      { name: 'TypeScript', level: 'Expert' },
+      { name: 'ESLint', level: 'Expert' },
+      { name: 'Prettier', level: 'Expert' },
+      { name: 'Webpack', level: 'Expert' },
+      { name: 'TanStack React Query', level: 'Expert' },
+      { name: 'React Hook Form', level: 'Expert' }
+    ],
+    database: [
+      { name: 'PostgreSQL', level: 'Expert' },
+      { name: 'Supabase', level: 'Expert' },
+      { name: 'Redis', level: 'Intermediate' }
+    ],
+    services: [
+      { name: 'Google APIs', level: 'Expert' },
+      { name: 'Vercel Analytics', level: 'Expert' },
+      { name: 'Vercel', level: 'Expert' }
     ]
   };
 
@@ -218,11 +235,11 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                   <div className="dashboard-card p-4 md:p-6">
                     <h2 className="text-xl font-bold text-center mb-4">Development Stack</h2>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
                       {/* Languages */}
                       <div>
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          LANGUAGES
+                          📚 LANGUAGES
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {developerStack.languages.map((lang, index) => (
@@ -249,7 +266,7 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                       {/* Frameworks */}
                       <div>
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          FRAMEWORKS
+                          🚀 FRAMEWORKS
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {developerStack.frameworks.map((framework, index) => (
@@ -273,18 +290,45 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                         </div>
                       </div>
 
-                      {/* Tools */}
+                      {/* UI Libraries & Components */}
                       <div>
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          TOOLS
+                          🎨 UI LIBRARIES & COMPONENTS
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {developerStack.tools.map((tool, index) => (
+                          {developerStack.uiLibraries.map((lib, index) => (
+                            <motion.div
+                              key={lib.name}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
+                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
+                            >
+                              <span className="text-sm font-medium text-foreground">{lib.name}</span>
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                lib.level === 'Expert' 
+                                  ? 'bg-green-500/20 text-green-400' 
+                                  : 'bg-blue-500/20 text-blue-400'
+                              }`}>
+                                {lib.level.charAt(0)}
+                              </span>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Development Tools & Build */}
+                      <div>
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                          🔧 DEVELOPMENT TOOLS & BUILD
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {developerStack.developmentTools.map((tool, index) => (
                             <motion.div
                               key={tool.name}
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
+                              transition={{ duration: 0.3, delay: 0.25 + index * 0.05 }}
                               className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
                             >
                               <span className="text-sm font-medium text-foreground">{tool.name}</span>
@@ -300,27 +344,54 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                         </div>
                       </div>
 
-                      {/* AI Tools */}
+                      {/* Database & Backend */}
                       <div>
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          AI TOOLS
+                          🗄️ DATABASE & BACKEND
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {developerStack.aiTools.map((aiTool, index) => (
+                          {developerStack.database.map((db, index) => (
                             <motion.div
-                              key={aiTool.name}
+                              key={db.name}
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.25 + index * 0.05 }}
+                              transition={{ duration: 0.3, delay: 0.35 + index * 0.05 }}
                               className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
                             >
-                              <span className="text-sm font-medium text-foreground">{aiTool.name}</span>
+                              <span className="text-sm font-medium text-foreground">{db.name}</span>
                               <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                aiTool.level === 'Expert' 
+                                db.level === 'Expert' 
                                   ? 'bg-green-500/20 text-green-400' 
                                   : 'bg-blue-500/20 text-blue-400'
                               }`}>
-                                {aiTool.level.charAt(0)}
+                                {db.level.charAt(0)}
+                              </span>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Services & Hosting */}
+                      <div>
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                          🌐 SERVICES & HOSTING
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {developerStack.services.map((service, index) => (
+                            <motion.div
+                              key={service.name}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
+                            >
+                              <span className="text-sm font-medium text-foreground">{service.name}</span>
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                service.level === 'Expert' 
+                                  ? 'bg-green-500/20 text-green-400' 
+                                  : 'bg-blue-500/20 text-blue-400'
+                              }`}>
+                                {service.level.charAt(0)}
                               </span>
                             </motion.div>
                           ))}
@@ -359,15 +430,16 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                     <h2 className="text-xl font-bold text-center mb-4">Creative Stack</h2>
                     
                     <div className="space-y-4">
-                      {/* Design Tools */}
+                      {/* Creative Tools */}
                       <div>
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          DESIGN TOOLS
+                          CREATIVE TOOLS
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {[
                             { name: 'Photoshop', level: 'Expert' },
-                            { name: 'Illustrator', level: 'Expert' },
+                            { name: 'Premiere Pro', level: 'Expert' },
+                            { name: 'After Effects', level: 'Expert' },
                             { name: 'Figma', level: 'Expert' }
                           ].map((item, index) => (
                             <motion.div
@@ -384,68 +456,6 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                                   : 'bg-blue-500/20 text-blue-400'
                               }`}>
                                 {item.level.charAt(0)}
-                              </span>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Video & Motion */}
-                      <div>
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          VIDEO & MOTION
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { name: 'Premiere Pro', level: 'Expert' },
-                            { name: 'After Effects', level: 'Intermediate' },
-                            { name: 'Motion Graphics', level: 'Intermediate' }
-                          ].map((tool, index) => (
-                            <motion.div
-                              key={tool.name}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.15 + index * 0.05 }}
-                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
-                            >
-                              <span className="text-sm font-medium text-foreground">{tool.name}</span>
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                tool.level === 'Expert' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-blue-500/20 text-blue-400'
-                              }`}>
-                                {tool.level.charAt(0)}
-                              </span>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* AI Tools */}
-                      <div>
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          AI TOOLS
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { name: 'Adobe Sensei', level: 'Intermediate' },
-                            { name: 'Midjourney', level: 'Expert' },
-                            { name: 'Runway ML', level: 'Intermediate' }
-                          ].map((strategy, index) => (
-                            <motion.div
-                              key={strategy.name}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
-                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
-                            >
-                              <span className="text-sm font-medium text-foreground">{strategy.name}</span>
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                strategy.level === 'Expert' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-blue-500/20 text-blue-400'
-                              }`}>
-                                {strategy.level.charAt(0)}
                               </span>
                             </motion.div>
                           ))}
@@ -738,16 +748,19 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                     <h2 className="text-xl font-bold text-center mb-4">Creator Stack</h2>
                     
                     <div className="space-y-4">
-                      {/* Content Creation */}
+                      {/* Creator Skills */}
                       <div>
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          CONTENT CREATION
+                          CREATOR SKILLS
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {[
-                            { name: 'YouTube', level: 'Expert' },
                             { name: 'Video Editing', level: 'Expert' },
-                            { name: 'Storytelling', level: 'Expert' }
+                            { name: 'Thumbnail Design', level: 'Expert' },
+                            { name: 'Branding', level: 'Expert' },
+                            { name: 'Story Telling', level: 'Expert' },
+                            { name: 'SEO', level: 'Expert' },
+                            { name: 'Script Writing', level: 'Expert' }
                           ].map((item, index) => (
                             <motion.div
                               key={item.name}
@@ -763,68 +776,6 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
                                   : 'bg-blue-500/20 text-blue-400'
                               }`}>
                                 {item.level.charAt(0)}
-                              </span>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Production Tools */}
-                      <div>
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          PRODUCTION TOOLS
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { name: 'OBS Studio', level: 'Expert' },
-                            { name: 'DaVinci Resolve', level: 'Intermediate' },
-                            { name: 'Audacity', level: 'Expert' }
-                          ].map((tool, index) => (
-                            <motion.div
-                              key={tool.name}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.15 + index * 0.05 }}
-                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
-                            >
-                              <span className="text-sm font-medium text-foreground">{tool.name}</span>
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                tool.level === 'Expert' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-blue-500/20 text-blue-400'
-                              }`}>
-                                {tool.level.charAt(0)}
-                              </span>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Content Strategy */}
-                      <div>
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          CONTENT STRATEGY
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { name: 'SEO', level: 'Expert' },
-                            { name: 'Analytics', level: 'Intermediate' },
-                            { name: 'Audience Growth', level: 'Expert' }
-                          ].map((strategy, index) => (
-                            <motion.div
-                              key={strategy.name}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
-                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border"
-                            >
-                              <span className="text-sm font-medium text-foreground">{strategy.name}</span>
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                strategy.level === 'Expert' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-blue-500/20 text-blue-400'
-                              }`}>
-                                {strategy.level.charAt(0)}
                               </span>
                             </motion.div>
                           ))}

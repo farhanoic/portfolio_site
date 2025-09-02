@@ -24,6 +24,13 @@ export interface Resource {
   tags: string[];
   featured: boolean;
   order: number;
+  // New fields for enhanced modal
+  blogPosts?: Array<{
+    title: string;
+    url: string;
+  }>;
+  useCases: string[];
+  toolType: string;
   _createdAt: string;
   _updatedAt: string;
 }
@@ -56,6 +63,13 @@ export interface ClientResource {
   icon: string;
   tags: string[];
   featured: boolean;
+  // New fields for enhanced modal
+  blogPosts?: Array<{
+    title: string;
+    url: string;
+  }>;
+  useCases: string[];
+  toolType: string;
 }
 
 // Category configuration for client-side filtering

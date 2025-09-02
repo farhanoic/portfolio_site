@@ -19,22 +19,7 @@ const fallbackCategories = [
   { _id: 'productivity', name: 'Productivity', slug: 'productivity', icon: '⚡', order: 6 }
 ];
 
-const fallbackResources = [
-  {
-    _id: 'vscode',
-    title: 'Visual Studio Code',
-    slug: 'vscode',
-    description: 'My primary code editor with extensive extensions for web development.',
-    url: 'https://code.visualstudio.com/',
-    icon: '⚡',
-    category: { _id: 'development', name: 'Development', slug: 'development' },
-    tags: ['editor', 'IDE', 'development'],
-    featured: true,
-    order: 0,
-    _createdAt: new Date().toISOString(),
-    _updatedAt: new Date().toISOString()
-  }
-];
+const fallbackResources: any[] = [];
 
 export default async function ResourcesPage() {
   // Disable caching for fresh data
@@ -45,16 +30,14 @@ export default async function ResourcesPage() {
   try {
     catalogData = await getResourcesCatalogData();
     
-    // Use fallback data if Sanity returns empty results
-    if (!catalogData.categories.length && !catalogData.resources.length) {
-      console.log('📝 Using fallback resource data (Sanity appears empty)');
+    // If no data from Sanity, show empty state
+    if (!catalogData) {
       catalogData = {
         categories: fallbackCategories,
         resources: fallbackResources
       };
     }
   } catch (error) {
-    console.error('❌ Error fetching resources data, using fallback:', error);
     catalogData = {
       categories: fallbackCategories,
       resources: fallbackResources

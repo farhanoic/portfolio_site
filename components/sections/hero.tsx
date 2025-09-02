@@ -152,7 +152,7 @@ function TerminalFooter({ animationDelay = 0 }: { animationDelay?: number }) {
     {
       command: '$ whoami',
       output: [
-        'Farhan Azhar - Full Stack Developer & Creator'
+        'Farhan Azhar'
       ],
       delay: 2000
     }
@@ -895,10 +895,10 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
     {
       id: 1,
       dateRange: "2025",
-      title: "Freelancer & Content Creator",
-      company: "Independent",
+      title: "Career Break - Focusing on Learning",
+      company: "Academic Pursuit",
       type: "ongoing",
-      description: "Full-time freelancing and content creation across multiple platforms"
+      description: "Currently pursuing a Data Science Bachelor's Degree while exploring AI/ML technologies and maintaining selective freelance projects"
     },
     {
       id: 2,
@@ -915,14 +915,6 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
       company: "Paradox Fest",
       type: "completed",
       description: "Professional video editing for events and promotional content"
-    },
-    {
-      id: 4,
-      dateRange: "2020",
-      title: "YouTube Channel Launch",
-      company: "Personal Brand",
-      type: "milestone",
-      description: "Started content creation journey with focus on tech and creativity"
     }
   ];
   const socialLinks = [
@@ -1150,7 +1142,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
                 }}
                 style={{ width: 'max-content' }}
               >
-                {['JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker', 'JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker', 'JavaScript', 'TypeScript', 'Python', 'React', 'Next.js', 'Node.js', 'Git', 'Tailwind CSS', 'VS Code', 'Claude Code', 'GitHub Copilot', 'ChatGPT', 'MongoDB', 'PostgreSQL', 'AWS', 'Vercel', 'Docker'].map((skill, index) => (
+                {['TypeScript', 'JavaScript', 'HTML', 'CSS', 'SQL', 'Next.js', 'React', 'Tailwind CSS', 'Node.js', 'shadcn/ui', 'Radix UI', 'Framer Motion', 'Recharts', 'ESLint', 'Prettier', 'Webpack', 'TanStack React Query', 'React Hook Form', 'PostgreSQL', 'Supabase', 'Redis', 'Google APIs', 'Vercel Analytics', 'Vercel', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'SQL', 'Next.js', 'React', 'Tailwind CSS', 'Node.js', 'shadcn/ui', 'Radix UI', 'Framer Motion', 'Recharts', 'ESLint', 'Prettier', 'Webpack', 'TanStack React Query', 'React Hook Form', 'PostgreSQL', 'Supabase', 'Redis', 'Google APIs', 'Vercel Analytics', 'Vercel', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'SQL', 'Next.js', 'React', 'Tailwind CSS', 'Node.js', 'shadcn/ui', 'Radix UI', 'Framer Motion', 'Recharts', 'ESLint', 'Prettier', 'Webpack', 'TanStack React Query', 'React Hook Form', 'PostgreSQL', 'Supabase', 'Redis', 'Google APIs', 'Vercel Analytics', 'Vercel'].map((skill, index) => (
                   <div
                     key={index}
                     className="flex items-center px-3 py-2 sm:px-5 sm:py-3 bg-green-500/10 rounded-full border border-green-500/30 shadow-sm hover:bg-green-500/20 transition-colors"
@@ -1373,7 +1365,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
                 }}
                 style={{ width: 'max-content' }}
               >
-                {['Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD', 'Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD', 'Photoshop', 'Illustrator', 'Figma', 'Premiere Pro', 'After Effects', 'Motion Graphics', 'Adobe Sensei', 'Midjourney', 'Runway ML', 'DaVinci Resolve', 'Final Cut Pro', 'Canva', 'InDesign', 'Lightroom', 'Blender', 'Cinema 4D', 'Sketch', 'XD'].map((skill, index) => (
+                {['Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Photoshop', 'Premiere Pro', 'After Effects', 'Figma'].map((skill, index) => (
                   <div
                     key={index}
                     className="flex items-center px-3 py-2 sm:px-5 sm:py-3 bg-purple-500/10 rounded-full border border-purple-500/30 shadow-sm hover:bg-purple-500/20 transition-colors"
@@ -1460,7 +1452,7 @@ export function Hero({ developmentProjects = [], creativeProjects = [], creative
                 }}
                 style={{ width: 'max-content' }}
               >
-                {['YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration', 'YouTube', 'Video Editing', 'Storytelling', 'OBS Studio', 'DaVinci Resolve', 'Audacity', 'SEO', 'Analytics', 'Audience Growth', 'Content Strategy', 'Premiere Pro', 'After Effects', 'Thumbnail Design', 'Script Writing', 'Live Streaming', 'Community Management', 'Brand Collaboration'].map((skill, index) => (
+                {['Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing', 'Video Editing', 'Thumbnail Design', 'Branding', 'Story Telling', 'SEO', 'Script Writing'].map((skill, index) => (
                   <div
                     key={index}
                     className="flex items-center px-5 py-3 bg-primary/10 rounded-full border border-primary/30 shadow-sm hover:bg-primary/20 transition-colors"

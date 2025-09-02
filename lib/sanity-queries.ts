@@ -408,6 +408,12 @@ export const resourcesQuery = groq`
     tags[],
     featured,
     order,
+    blogPosts[]{
+      title,
+      url
+    },
+    useCases[],
+    toolType,
     _createdAt,
     _updatedAt
   }
@@ -430,6 +436,12 @@ export const resourcesByCategoryQuery = groq`
     tags[],
     featured,
     order,
+    blogPosts[]{
+      title,
+      url
+    },
+    useCases[],
+    toolType,
     _createdAt,
     _updatedAt
   }
@@ -452,6 +464,12 @@ export const featuredResourcesQuery = groq`
     tags[],
     featured,
     order,
+    blogPosts[]{
+      title,
+      url
+    },
+    useCases[],
+    toolType,
     _createdAt,
     _updatedAt
   }
@@ -483,6 +501,12 @@ export const resourcesCatalogQuery = groq`
       tags[],
       featured,
       order,
+      blogPosts[]{
+        title,
+        url
+      },
+      useCases[],
+      toolType,
       _createdAt,
       _updatedAt
     }
