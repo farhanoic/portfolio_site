@@ -111,6 +111,7 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
     languages: [
       { name: 'TypeScript', level: 'Expert' },
       { name: 'JavaScript', level: 'Expert' },
+      { name: 'Python', level: 'Expert' },
       { name: 'HTML', level: 'Expert' },
       { name: 'CSS', level: 'Expert' },
       { name: 'SQL', level: 'Expert' }
