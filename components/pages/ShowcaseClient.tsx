@@ -40,11 +40,22 @@ interface ShowcaseClientProps {
 
 export function ShowcaseClient({ developmentProjects, creativeProjects }: ShowcaseClientProps) {
   const [selectedProject, setSelectedProject] = useState<DisplayableProject | null>(null);
-  const [activeTab, setActiveTab] = useState<'Developer' | 'Editor' | 'Creator'>('Developer');
+  const [activeTab, setActiveTab] = useState<'Developer' | 'Editor' | 'Creator'>('Editor');
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
 
 
   // YouTube stats are now only used in Creator tab via YouTubeStatsWrapper component
+
+  const updateUrlTab = (tab: 'Developer' | 'Editor' | 'Creator', mode: 'replace' | 'push' = 'replace') => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tab);
+    if (mode === 'replace') {
+      window.history.replaceState(null, '', url.toString());
+    } else {
+      window.history.pushState(null, '', url.toString());
+    }
+  };
 
   // Check URL parameter to set initial tab
   useEffect(() => {
@@ -53,6 +64,8 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
       const tabParam = urlParams.get('tab');
       if (tabParam === 'Creator' || tabParam === 'Editor' || tabParam === 'Developer') {
         setActiveTab(tabParam as 'Developer' | 'Editor' | 'Creator');
+      } else {
+        updateUrlTab('Editor', 'replace');
       }
     }
   }, []);
@@ -174,7 +187,10 @@ export function ShowcaseClient({ developmentProjects, creativeProjects }: Showca
               {tabs.map((tab) => (
                 <motion.button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    updateUrlTab(tab.id, 'push');
+                  }}
                   className={`relative px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
                     activeTab === tab.id
                       ? `${tab.bgColor} ${tab.color} border ${tab.borderColor}`
